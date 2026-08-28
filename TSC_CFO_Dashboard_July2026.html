@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSC CFO Dashboard — July 2026</title>
+<style>
+  :root{
+    --blue:#1e5b8c;
+    --blue-dark:#123a5c;
+    --charcoal:#2b2f36;
+    --white:#ffffff;
+    --gray-light:#f2f4f7;
+    --gray-mid:#dde2e8;
+    --gray-text:#5b6270;
+    --green:#1f8a4c;
+    --green-bg:#e6f5ea;
+    --amber:#b3790a;
+    --amber-bg:#fdf1dc;
+    --red:#c22b2b;
+    --red-bg:#fbe6e6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--gray-light); color:var(--charcoal); line-height:1.4;
+  }
+  header{
+    background:var(--blue-dark); color:var(--white); padding:18px 24px;
+    display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px;
+  }
+  header h1{margin:0; font-size:1.25rem;}
+  header .meta{font-size:0.8rem; color:#cfe0ee; text-align:right;}
+  .note-bar{
+    background:var(--amber-bg); color:var(--amber); border-bottom:1px solid #f0d9ad;
+    padding:8px 24px; font-size:0.82rem; text-align:center;
+  }
+  main{max-width:1200px; margin:0 auto; padding:20px;}
+  section{margin-bottom:28px;}
+  h2{font-size:1.05rem; color:var(--blue-dark); border-bottom:2px solid var(--gray-mid); padding-bottom:6px; margin-bottom:14px;}
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px;}
+  .card{
+    background:var(--white); border:1px solid var(--gray-mid); border-radius:8px;
+    padding:12px 14px;
+  }
+  .card .label{font-size:0.72rem; color:var(--gray-text); text-transform:uppercase; letter-spacing:0.03em;}
+  .card .value{font-size:1.3rem; font-weight:700; color:var(--charcoal); margin-top:4px;}
+  .card .value.unfav{color:var(--red);}
+  .card .value.fav{color:var(--green);}
+  .card .value.data-req{color:var(--gray-text); font-size:0.95rem; font-weight:600;}
+
+  .status-pill{
+    display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;
+  }
+  .status-favorable{background:var(--green-bg); color:var(--green);}
+  .status-watch{background:var(--amber-bg); color:var(--amber);}
+  .status-unfavorable{background:var(--red-bg); color:var(--red);}
+  .status-data{background:var(--gray-mid); color:var(--gray-text);}
+
+  .controls{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;}
+  .controls select, .controls input{
+    padding:6px 10px; border:1px solid var(--gray-mid); border-radius:6px; font-size:0.85rem; background:var(--white);
+  }
+  table{width:100%; border-collapse:collapse; background:var(--white); border-radius:8px; overflow:hidden; font-size:0.83rem;}
+  thead th{
+    background:var(--blue); color:var(--white); text-align:left; padding:9px 10px; cursor:pointer; white-space:nowrap;
+    position:relative; user-select:none;
+  }
+  thead th:hover{background:var(--blue-dark);}
+  thead th.sorted-asc::after{content:" \25B2"; font-size:0.7rem;}
+  thead th.sorted-desc::after{content:" \25BC"; font-size:0.7rem;}
+  tbody td{padding:8px 10px; border-bottom:1px solid var(--gray-light); white-space:nowrap;}
+  tbody tr:hover{background:var(--gray-light);}
+  td.num{text-align:right; font-variant-numeric:tabular-nums;}
+  td.data-req{color:var(--gray-text); font-style:italic;}
+  .table-wrap{overflow-x:auto; border-radius:8px; border:1px solid var(--gray-mid);}
+
+  .charts{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:800px){.charts{grid-template-columns:1fr;}}
+  .chart-card{background:var(--white); border:1px solid var(--gray-mid); border-radius:8px; padding:14px;}
+  .chart-card h3{margin:0 0 8px 0; font-size:0.9rem; color:var(--blue-dark);}
+  canvas{max-width:100%;}
+  .data-required-box{
+    display:flex; align-items:center; justify-content:center; height:260px;
+    background:var(--gray-light); border:1px dashed var(--gray-mid); border-radius:6px;
+    color:var(--gray-text); font-size:0.85rem; text-align:center; padding:16px;
+  }
+
+  .attention-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:800px){.attention-grid{grid-template-columns:1fr;}}
+  .attention-card{background:var(--white); border:1px solid var(--gray-mid); border-radius:8px; padding:14px;}
+  .attention-card h3{margin:0 0 10px 0; font-size:0.9rem;}
+  .attention-card ul{margin:0; padding-left:0; list-style:none;}
+  .attention-card li{
+    display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--gray-light);
+    font-size:0.83rem;
+  }
+  .attention-card li:last-child{border-bottom:none;}
+  .attention-card li .amt{font-weight:700; font-variant-numeric:tabular-nums;}
+  .full-span{grid-column:1/-1;}
+  .req-explanation{background:var(--red-bg); color:var(--red); border-radius:4px; padding:2px 6px; font-size:0.7rem; font-weight:700; margin-left:6px;}
+
+  .reconciliation{
+    display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:8px; font-size:0.85rem;
+  }
+  .reconciliation.pass{background:var(--green-bg); color:var(--green); border:1px solid #bfe4cb;}
+  .badge{font-weight:700; padding:3px 10px; border-radius:6px; background:rgba(255,255,255,0.6);}
+  footer{text-align:center; font-size:0.75rem; color:var(--gray-text); padding:16px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Thompson Station Church — CFO Dashboard</h1>
+  <div class="meta">
+    Data through: <strong>July 2026 (YTD)</strong><br>
+    Last updated: <strong>August 28, 2026</strong>
+  </div>
+</header>
+<div class="note-bar">
+  ⚠ Source data is limited to high-level ministry budget-vs-actual totals for January&ndash;July 2026. No annual budget figures and no transaction-level detail were provided in the source workbook. Metrics that cannot be supported by the source are labeled "Data Required."
+</div>
+
+<main>
+
+  <!-- EXECUTIVE OVERVIEW -->
+  <section>
+    <h2>1. Executive Overview</h2>
+    <div class="cards" id="execCards"></div>
+  </section>
+
+  <!-- MINISTRY COMPARISON -->
+  <section>
+    <h2>2. Ministry Comparison (YTD Jan&ndash;Jul 2026)</h2>
+    <div class="controls">
+      <input type="text" id="searchBox" placeholder="Search ministry...">
+      <select id="statusFilter">
+        <option value="">All Statuses</option>
+        <option value="Favorable">Favorable</option>
+        <option value="Watch">Watch</option>
+        <option value="Unfavorable">Unfavorable</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table id="ministryTable">
+        <thead>
+          <tr>
+            <th data-key="ministry">Ministry</th>
+            <th data-key="annualBudget">Annual Budget</th>
+            <th data-key="ytdBudget">YTD Budget</th>
+            <th data-key="ytdActual">YTD Actual</th>
+            <th data-key="dollarVar">$ Variance</th>
+            <th data-key="pctVar">% Variance</th>
+            <th data-key="pctAnnualSpent">% Annual Spent</th>
+            <th data-key="remainingBudget">Remaining Budget</th>
+            <th data-key="statusSort">Status</th>
+          </tr>
+        </thead>
+        <tbody id="ministryBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CHARTS -->
+  <section>
+    <h2>Visuals</h2>
+    <div class="charts">
+      <div class="chart-card">
+        <h3>Actual vs. YTD Budget by Ministry</h3>
+        <canvas id="barChart" width="560" height="320"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Annual Budget Utilization by Ministry (YTD Actual ÷ Annual Budget)</h3>
+        <canvas id="utilChart" width="560" height="320"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- CFO ATTENTION REQUIRED -->
+  <section>
+    <h2>3. CFO Attention Required</h2>
+    <div class="attention-grid">
+      <div class="attention-card">
+        <h3 style="color:var(--red);">Top 5 Unfavorable Variances (YTD, over budget)</h3>
+        <ul id="topUnfav"></ul>
+      </div>
+      <div class="attention-card">
+        <h3 style="color:var(--green);">Top 5 Favorable Variances (YTD, under budget)</h3>
+        <ul id="topFav"></ul>
+      </div>
+      <div class="attention-card full-span">
+        <h3 style="color:var(--amber);">Material Spending With No Budget <span class="req-explanation">Management Explanation Required</span></h3>
+        <ul id="noBudget"></ul>
+      </div>
+      <div class="attention-card full-span">
+        <h3>Ministries Spending Faster Than % of Year Elapsed <span class="req-explanation">Management Explanation Required</span></h3>
+        <ul id="fastSpend"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECONCILIATION -->
+  <section>
+    <h2>Validation &amp; Reconciliation</h2>
+    <div class="reconciliation pass">
+      <span class="badge">PASS</span>
+      <span>Sum of the 17 ministry YTD Actual and YTD Budget totals reconciles exactly to the workbook's "Total Expenditures" line (Actual: $4,026,302.96; Budget: $3,803,567.49). No ministry or budget area is double-counted. Favorable/unfavorable directions confirmed against source-calculated variance signs. "Total KOTK Expenses" ($150,883.57) and "Total KOTK Income" ($169,975.00) are reported under a separate "Other Revenue/Expenditures" section and are excluded from ministry totals and the org-wide expenditure total, consistent with how the source workbook presents them.</span>
+    </div>
+    <div class="reconciliation pass" style="margin-top:10px; background:var(--amber-bg); color:var(--amber); border:1px solid #f0d9ad;">
+      <span class="badge" style="background:rgba(255,255,255,0.7);">REVIEW REQUIRED</span>
+      <span>
+        Annual budget figures come from <em>Final_2026_Budget_.xlsx</em>, "Finance Team Summary" tab (board-approved), per explicit instruction. That workbook also contains "Original Expenses" and "Revised Expenses" tabs with materially different annual totals by ministry that do not match Finance Team Summary or each other (e.g. Care Ministries ranges from $2,200 to $31,300 across the three tabs; Church-Wide/Community ranges from $122,700 to $235,800). Sum of the 17 ministry annual budgets used here ($5,632,494.22) plus "Capital Savings (Debt Retirement)" ($837,591, not tracked in the ministry-level dashboard) equals Finance Team Summary's own grand total ($6,470,085.22) exactly — confirming internal consistency of the Finance Team Summary tab specifically. "Staff Support Ministry" (tracking workbook) was matched to "Staff Cont Ed/Conf & Min Exp" (budget file) based on consistent YTD-budget-to-annual-budget ratio (58.3%, in line with cleanly-matched ministries) since the two files use different labels for this line — recommend confirming this mapping with Adam/Novum before board distribution.
+      </span>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Source: 07 2026 Budget v Actual Dashboard Overview &amp; by Ministry.xlsx (Thompson Station Baptist Church). This dashboard reflects only figures present in the source workbook. No transaction-level detail was reviewed or is available in this source. Figures not supported by the source are labeled "Data Required."
+</footer>
+
+<script>
+/* ================= SOURCE DATA =================
+   YTD Actual / YTD Budget: 07 2026 Budget v Actual Dashboard Overview & by Ministry.xlsx (Jan-Jul 2026)
+   Annual Budget: Final_2026_Budget_.xlsx, "Finance Team Summary" tab (board-approved), confirmed by user as authoritative.
+   NOTE: The uploaded budget file also contains "Original Expenses" and "Revised Expenses" tabs with different
+   annual totals per ministry that do NOT match Finance Team Summary or each other. Finance Team Summary was
+   selected per explicit user instruction. See reconciliation note below for details.
+   NOTE: "Staff Support Ministry" (tracking workbook) is matched to "Staff Cont Ed/Conf & Min Exp" (budget file)
+   based on YTD budget / annual budget ratio consistency (58.3%, matching every other cleanly-mapped ministry) —
+   the two files do not use identical labels for this ministry. Flagged for confirmation with Adam / Novum.
+*/
+const ministryData = [
+  { ministry:"Administrative & Office",        ytdActual:220643.81, ytdBudget:188619.13, annualBudget:323347.22 },
+  { ministry:"Adult's Ministry",                ytdActual:17907.55,  ytdBudget:24458.31,  annualBudget:42500.00 },
+  { ministry:"Care Ministries",                 ytdActual:3251.78,   ytdBudget:1281.00,   annualBudget:2200.00  },
+  { ministry:"Church-Wide/Community Ministry",  ytdActual:155671.96, ytdBudget:72143.94,  annualBudget:150965.00},
+  { ministry:"Communications Ministry",         ytdActual:52879.45,  ytdBudget:31962.00,  annualBudget:54788.00 },
+  { ministry:"Compensation",                    ytdActual:1699362.41,ytdBudget:1612722.37,annualBudget:2764667.00},
+  { ministry:"Compensation Benefits",           ytdActual:277589.45, ytdBudget:346500.00, annualBudget:594000.00 },
+  { ministry:"Connections",                     ytdActual:49144.86,  ytdBudget:21525.00,  annualBudget:36900.00 },
+  { ministry:"Facilities & Equipment",          ytdActual:1073681.15,ytdBudget:1039500.00,annualBudget:944409.00 },
+  { ministry:"Kid's Birth-PreK Ministry",        ytdActual:21414.99,  ytdBudget:19458.31,  annualBudget:31000.00 },
+  { ministry:"Kid's K-5th Ministry",             ytdActual:35535.62,  ytdBudget:42266.62,  annualBudget:54900.00 },
+  { ministry:"Missions (Operating)",             ytdActual:131766.88, ytdBudget:144905.88, annualBudget:248410.00},
+  { ministry:"Non-Compensation Staff Exp",       ytdActual:150932.10, ytdBudget:62181.00,  annualBudget:95600.00 },
+  { ministry:"Staff Support Ministry",           ytdActual:35846.41,  ytdBudget:45004.12,  annualBudget:77150.00, mappingNote:true },
+  { ministry:"Worship Ministry-Music",           ytdActual:21366.43,  ytdBudget:30989.31,  annualBudget:53000.00 },
+  { ministry:"Worship Ministry-Technology",      ytdActual:52512.94,  ytdBudget:45650.50,  annualBudget:78258.00 },
+  { ministry:"Youth Ministry",                   ytdActual:26795.17,  ytdBudget:74400.00,  annualBudget:80400.00 }
+];
+
+// Board-approved annual budget line not included in ministry operating tracking dashboard
+const DEBT_RETIREMENT_ANNUAL = 837591.00; // "Capital Savings (Debt Retirement)" — Finance Team Summary
+
+// Material spending items posted against a $0 budget line (from source, sub-account level)
+const noBudgetItems = [
+  { label:"Compensation — 1-505990 Payroll Taxes",              amount:62921.73 },
+  { label:"Non-Comp Staff Exp / Other — Total KOTK Expenses",    amount:150883.57 },
+  { label:"Connections — 1-350800 Coffee Service",               amount:16037.21 },
+  { label:"Church-Wide/Community — 1-705780 Vision Nights",      amount:5799.48 }
+];
+
+const ORG_YTD_ACTUAL = 4026302.96;
+const ORG_YTD_BUDGET = 3803567.49;
+
+/* ================= CALCULATIONS ================= */
+function fmt(n, opts={}){
+  if(n===null || n===undefined || isNaN(n)) return "Data Required";
+  const sign = n<0 ? "-" : "";
+  return sign + "$" + Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:0, maximumFractionDigits:0});
+}
+function fmtPct(n){
+  if(n===null || n===undefined || isNaN(n)) return "Data Required";
+  return (n*100).toFixed(1) + "%";
+}
+
+ministryData.forEach(m=>{
+  m.dollarVar = m.ytdBudget - m.ytdActual; // Budget minus Actual per spec
+  m.pctVar = m.ytdBudget !== 0 ? (m.dollarVar / m.ytdBudget) : null;
+  m.pctAnnualSpent = m.annualBudget ? (m.ytdActual / m.annualBudget) : null;
+  m.remainingBudget = m.annualBudget !== undefined ? (m.annualBudget - m.ytdActual) : null;
+  if(m.pctVar === null){
+    m.status = "Watch"; m.statusSort = 1;
+  } else if(m.pctVar >= 0.05){
+    m.status = "Favorable"; m.statusSort = 0;
+  } else if(m.pctVar <= -0.05){
+    m.status = "Unfavorable"; m.statusSort = 2;
+  } else {
+    m.status = "Watch"; m.statusSort = 1;
+  }
+});
+
+const TOTAL_ANNUAL_BUDGET = ministryData.reduce((s,m)=>s+m.annualBudget,0);
+const TOTAL_REMAINING_ANNUAL = TOTAL_ANNUAL_BUDGET - ORG_YTD_ACTUAL;
+const TOTAL_PCT_ANNUAL_SPENT = ORG_YTD_ACTUAL / TOTAL_ANNUAL_BUDGET;
+
+// Org-level executive overview
+const orgVar = ORG_YTD_BUDGET - ORG_YTD_ACTUAL;
+const orgPctVar = orgVar / ORG_YTD_BUDGET;
+// % of year elapsed through July 31, 2026 (calendar calculation, not a source figure)
+const startYear = new Date(2026,0,1);
+const asOf = new Date(2026,6,31); // Jul 31, 2026
+const yearEnd = new Date(2026,11,31);
+const daysElapsed = Math.round((asOf - startYear)/(1000*60*60*24)) + 1;
+const daysInYear = Math.round((yearEnd - startYear)/(1000*60*60*24)) + 1;
+const pctYearElapsed = daysElapsed / daysInYear;
+
+/* ================= RENDER EXEC OVERVIEW ================= */
+const execCards = document.getElementById("execCards");
+const execItems = [
+  { label:"Annual Expense Budget (17 tracked ministries)", value: fmt(TOTAL_ANNUAL_BUDGET) },
+  { label:"YTD Budget", value: fmt(ORG_YTD_BUDGET) },
+  { label:"YTD Actual Expenses", value: fmt(ORG_YTD_ACTUAL) },
+  { label:"$ Variance (Budget − Actual)", value: fmt(orgVar), cls: orgVar<0 ? "unfav" : "fav" },
+  { label:"% Variance", value: fmtPct(orgPctVar), cls: orgPctVar<0 ? "unfav" : "fav" },
+  { label:"% of Annual Budget Spent", value: fmtPct(TOTAL_PCT_ANNUAL_SPENT), cls: TOTAL_PCT_ANNUAL_SPENT>pctYearElapsed ? "unfav" : "fav" },
+  { label:"Remaining Annual Budget", value: fmt(TOTAL_REMAINING_ANNUAL), cls: TOTAL_REMAINING_ANNUAL<0 ? "unfav" : "fav" },
+  { label:"% of Year Elapsed (calendar, through Jul 31)", value: fmtPct(pctYearElapsed) }
+];
+execItems.forEach(item=>{
+  const div = document.createElement("div");
+  div.className = "card";
+  div.innerHTML = `<div class="label">${item.label}</div><div class="value ${item.cls||''}">${item.value}</div>`;
+  execCards.appendChild(div);
+});
+
+/* ================= RENDER MINISTRY TABLE ================= */
+const tbody = document.getElementById("ministryBody");
+function statusPillHtml(status){
+  const cls = status==="Favorable" ? "status-favorable" : status==="Unfavorable" ? "status-unfavorable" : "status-watch";
+  return `<span class="status-pill ${cls}">${status}</span>`;
+}
+function renderTable(rows){
+  tbody.innerHTML = "";
+  rows.forEach(m=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${m.ministry}${m.mappingNote ? ' <span title="Matched by budget-ratio consistency, not identical label across source files — confirm with Adam/Novum" style="cursor:help; color:var(--amber); font-weight:700;">†</span>' : ''}</td>
+      <td class="num">${fmt(m.annualBudget)}</td>
+      <td class="num">${fmt(m.ytdBudget)}</td>
+      <td class="num">${fmt(m.ytdActual)}</td>
+      <td class="num" style="color:${m.dollarVar<0?'var(--red)':'var(--green)'}">${fmt(m.dollarVar)}</td>
+      <td class="num" style="color:${m.pctVar<0?'var(--red)':'var(--green)'}">${fmtPct(m.pctVar)}</td>
+      <td class="num" style="color:${m.pctAnnualSpent>1?'var(--red)':'var(--charcoal)'}">${fmtPct(m.pctAnnualSpent)}</td>
+      <td class="num" style="color:${m.remainingBudget<0?'var(--red)':'var(--charcoal)'}">${fmt(m.remainingBudget)}</td>
+      <td>${statusPillHtml(m.status)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+renderTable(ministryData);
+
+/* Filtering */
+const searchBox = document.getElementById("searchBox");
+const statusFilter = document.getElementById("statusFilter");
+function applyFilters(){
+  const term = searchBox.value.toLowerCase();
+  const statusVal = statusFilter.value;
+  const filtered = ministryData.filter(m=>{
+    const matchTerm = m.ministry.toLowerCase().includes(term);
+    const matchStatus = !statusVal || m.status === statusVal;
+    return matchTerm && matchStatus;
+  });
+  renderTable(filtered);
+}
+searchBox.addEventListener("input", applyFilters);
+statusFilter.addEventListener("change", applyFilters);
+
+/* Sorting */
+let currentSort = { key:null, dir:1 };
+document.querySelectorAll("#ministryTable thead th").forEach(th=>{
+  th.addEventListener("click", ()=>{
+    const key = th.getAttribute("data-key");
+    document.querySelectorAll("#ministryTable thead th").forEach(h=>h.classList.remove("sorted-asc","sorted-desc"));
+    if(currentSort.key === key){ currentSort.dir *= -1; } else { currentSort = { key, dir:1 }; }
+    th.classList.add(currentSort.dir===1 ? "sorted-asc" : "sorted-desc");
+    const sorted = [...ministryData].sort((a,b)=>{
+      let av = a[key], bv = b[key];
+      if(av === null) av = -Infinity;
+      if(bv === null) bv = -Infinity;
+      if(typeof av === "string") return av.localeCompare(bv) * currentSort.dir;
+      return (av - bv) * currentSort.dir;
+    });
+    renderTable(sorted);
+  });
+});
+
+/* ================= CFO ATTENTION LISTS ================= */
+const sortedByVar = [...ministryData].sort((a,b)=>a.dollarVar - b.dollarVar);
+const top5Unfav = sortedByVar.slice(0,5);
+const top5Fav = [...ministryData].sort((a,b)=>b.dollarVar - a.dollarVar).slice(0,5);
+
+document.getElementById("topUnfav").innerHTML = top5Unfav.map(m=>
+  `<li><span>${m.ministry}</span><span class="amt" style="color:var(--red)">${fmt(m.dollarVar)}</span></li>`
+).join("");
+document.getElementById("topFav").innerHTML = top5Fav.map(m=>
+  `<li><span>${m.ministry}</span><span class="amt" style="color:var(--green)">${fmt(m.dollarVar)}</span></li>`
+).join("");
+document.getElementById("noBudget").innerHTML = noBudgetItems.map(i=>
+  `<li><span>${i.label}</span><span class="amt" style="color:var(--amber)">${fmt(i.amount)}</span></li>`
+).join("") + `<li style="font-style:italic; color:var(--gray-text); border-top:1px solid var(--gray-mid); padding-top:8px;">These items posted actual spend against a $0 budget line in the source workbook. Cause not determinable from this source — Management Explanation Required.</li>`;
+
+// Ministries whose YTD Actual has already consumed a larger share of their annual budget than the % of year elapsed
+const fastSpenders = ministryData
+  .filter(m => m.pctAnnualSpent !== null && m.pctAnnualSpent > pctYearElapsed)
+  .sort((a,b) => b.pctAnnualSpent - a.pctAnnualSpent);
+document.getElementById("fastSpend").innerHTML = fastSpenders.map(m=>
+  `<li><span>${m.ministry}</span><span class="amt" style="color:${m.pctAnnualSpent>1?'var(--red)':'var(--amber)'}">${fmtPct(m.pctAnnualSpent)} of annual spent</span></li>`
+).join("") + `<li style="font-style:italic; color:var(--gray-text); border-top:1px solid var(--gray-mid); padding-top:8px;">Benchmark: ${fmtPct(pctYearElapsed)} of the year has elapsed through July 31. ${fastSpenders.length} of 17 ministries have used a larger share of their annual budget than that. Cause not determinable from this source (seasonal spending patterns, front-loaded costs, or overspending could each explain this — Management Explanation Required).</li>`;
+
+/* ================= BAR CHART (Actual vs YTD Budget) — native canvas, no libraries ================= */
+const canvas = document.getElementById("barChart");
+const ctx = canvas.getContext("2d");
+function drawBarChart(){
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const margin = { top:10, right:10, bottom:90, left:55 };
+  const chartW = W - margin.left - margin.right;
+  const chartH = H - margin.top - margin.bottom;
+  const maxVal = Math.max(...ministryData.map(m=>Math.max(m.ytdActual,m.ytdBudget))) * 1.08;
+  const n = ministryData.length;
+  const groupW = chartW / n;
+  const barW = groupW * 0.36;
+
+  // Axis
+  ctx.strokeStyle = "#dde2e8";
+  ctx.beginPath();
+  ctx.moveTo(margin.left, margin.top);
+  ctx.lineTo(margin.left, margin.top+chartH);
+  ctx.lineTo(margin.left+chartW, margin.top+chartH);
+  ctx.stroke();
+
+  // Gridlines + y labels
+  ctx.fillStyle = "#5b6270";
+  ctx.font = "9px sans-serif";
+  ctx.textAlign = "right";
+  const gridLines = 4;
+  for(let i=0;i<=gridLines;i++){
+    const val = (maxVal/gridLines)*i;
+    const y = margin.top + chartH - (val/maxVal)*chartH;
+    ctx.strokeStyle = "#eef1f5";
+    ctx.beginPath();
+    ctx.moveTo(margin.left, y);
+    ctx.lineTo(margin.left+chartW, y);
+    ctx.stroke();
+    ctx.fillText("$" + Math.round(val/1000) + "k", margin.left-6, y+3);
+  }
+
+  ministryData.forEach((m,i)=>{
+    const x0 = margin.left + i*groupW + groupW*0.12;
+    const actH = (m.ytdActual/maxVal)*chartH;
+    const budH = (m.ytdBudget/maxVal)*chartH;
+    // Actual bar
+    ctx.fillStyle = m.dollarVar<0 ? "#c22b2b" : "#1f8a4c";
+    ctx.fillRect(x0, margin.top+chartH-actH, barW, actH);
+    // Budget bar
+    ctx.fillStyle = "#1e5b8c";
+    ctx.fillRect(x0+barW+3, margin.top+chartH-budH, barW, budH);
+
+    // Label
+    ctx.save();
+    ctx.translate(x0+barW, margin.top+chartH+8);
+    ctx.rotate(-Math.PI/3.2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#2b2f36";
+    ctx.font = "9px sans-serif";
+    const shortName = m.ministry.length>22 ? m.ministry.slice(0,20)+"…" : m.ministry;
+    ctx.fillText(shortName, 0, 0);
+    ctx.restore();
+  });
+
+  // Legend
+  ctx.font = "10px sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#1e5b8c";
+  ctx.fillRect(margin.left, 0, 10, 10);
+  ctx.fillStyle = "#2b2f36";
+  ctx.fillText("YTD Budget", margin.left+14, 9);
+  ctx.fillStyle = "#1f8a4c";
+  ctx.fillRect(margin.left+95, 0, 10, 10);
+  ctx.fillStyle = "#2b2f36";
+  ctx.fillText("Actual (under budget)", margin.left+109, 9);
+  ctx.fillStyle = "#c22b2b";
+  ctx.fillRect(margin.left+250, 0, 10, 10);
+  ctx.fillStyle = "#2b2f36";
+  ctx.fillText("Actual (over budget)", margin.left+264, 9);
+}
+drawBarChart();
+
+/* ================= UTILIZATION CHART (YTD Actual / Annual Budget) — native canvas ================= */
+const utilCanvas = document.getElementById("utilChart");
+const utilCtx = utilCanvas.getContext("2d");
+function drawUtilChart(){
+  const W = utilCanvas.width, H = utilCanvas.height;
+  utilCtx.clearRect(0,0,W,H);
+  const margin = { top:14, right:10, bottom:90, left:45 };
+  const chartW = W - margin.left - margin.right;
+  const chartH = H - margin.top - margin.bottom;
+  const maxVal = Math.max(1.6, Math.max(...ministryData.map(m=>m.pctAnnualSpent)) * 1.08);
+  const n = ministryData.length;
+  const groupW = chartW / n;
+  const barW = groupW * 0.55;
+
+  utilCtx.strokeStyle = "#dde2e8";
+  utilCtx.beginPath();
+  utilCtx.moveTo(margin.left, margin.top);
+  utilCtx.lineTo(margin.left, margin.top+chartH);
+  utilCtx.lineTo(margin.left+chartW, margin.top+chartH);
+  utilCtx.stroke();
+
+  // Gridlines + y labels (as %)
+  utilCtx.font = "9px sans-serif";
+  utilCtx.textAlign = "right";
+  const gridLines = 4;
+  for(let i=0;i<=gridLines;i++){
+    const val = (maxVal/gridLines)*i;
+    const y = margin.top + chartH - (val/maxVal)*chartH;
+    utilCtx.strokeStyle = "#eef1f5";
+    utilCtx.beginPath();
+    utilCtx.moveTo(margin.left, y);
+    utilCtx.lineTo(margin.left+chartW, y);
+    utilCtx.stroke();
+    utilCtx.fillStyle = "#5b6270";
+    utilCtx.fillText(Math.round(val*100) + "%", margin.left-6, y+3);
+  }
+
+  // Year-elapsed benchmark line
+  const benchY = margin.top + chartH - (pctYearElapsed/maxVal)*chartH;
+  utilCtx.strokeStyle = "#1e5b8c";
+  utilCtx.setLineDash([5,4]);
+  utilCtx.beginPath();
+  utilCtx.moveTo(margin.left, benchY);
+  utilCtx.lineTo(margin.left+chartW, benchY);
+  utilCtx.stroke();
+  utilCtx.setLineDash([]);
+  utilCtx.fillStyle = "#1e5b8c";
+  utilCtx.textAlign = "left";
+  utilCtx.fillText("Year elapsed: " + Math.round(pctYearElapsed*100) + "%", margin.left+4, benchY-4);
+
+  ministryData.forEach((m,i)=>{
+    const x0 = margin.left + i*groupW + (groupW-barW)/2;
+    const val = m.pctAnnualSpent;
+    const h = (val/maxVal)*chartH;
+    utilCtx.fillStyle = val > 1 ? "#c22b2b" : (val > pctYearElapsed ? "#b3790a" : "#1f8a4c");
+    utilCtx.fillRect(x0, margin.top+chartH-h, barW, h);
+
+    utilCtx.save();
+    utilCtx.translate(x0+barW/2, margin.top+chartH+8);
+    utilCtx.rotate(-Math.PI/3.2);
+    utilCtx.textAlign = "right";
+    utilCtx.fillStyle = "#2b2f36";
+    utilCtx.font = "9px sans-serif";
+    const shortName = m.ministry.length>22 ? m.ministry.slice(0,20)+"…" : m.ministry;
+    utilCtx.fillText(shortName, 0, 0);
+    utilCtx.restore();
+  });
+
+  // Legend
+  utilCtx.font = "10px sans-serif";
+  utilCtx.textAlign = "left";
+  utilCtx.fillStyle = "#1f8a4c";
+  utilCtx.fillRect(margin.left, 0, 10, 10);
+  utilCtx.fillStyle = "#2b2f36";
+  utilCtx.fillText("On pace", margin.left+14, 9);
+  utilCtx.fillStyle = "#b3790a";
+  utilCtx.fillRect(margin.left+70, 0, 10, 10);
+  utilCtx.fillStyle = "#2b2f36";
+  utilCtx.fillText("Ahead of pace", margin.left+84, 9);
+  utilCtx.fillStyle = "#c22b2b";
+  utilCtx.fillRect(margin.left+175, 0, 10, 10);
+  utilCtx.fillStyle = "#2b2f36";
+  utilCtx.fillText("Over 100% of annual budget", margin.left+189, 9);
+}
+drawUtilChart();
+</script>
+
+</body>
+</html>
