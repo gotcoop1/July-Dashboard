@@ -1,0 +1,1068 @@
+<title>TSC Campus Readiness Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: readiness desk. Sticky nav; dashboards lead with status; everything keys off each room's next scheduled use. */
+/* Thompson Station Church brand — Orange #F36C42, Charcoal #3C4244, Gray #4F5659, Blue #72A8B8, Cream #DED7CC. Type: Montserrat. */
+:root{
+  --bg:#F4F1EC; --surface:#FFFFFF; --sunk:#EFEAE1; --line:#DED7CC; --ink:#2A2E30; --ink-2:#4F5659; --ink-3:#8A8F8C;
+  --accent:#F36C42; --accent-ink:#FFFFFF; --accent-soft:#FBE3D9;
+  --c-ministry:#3F8EA3; --c-event:#7A5AA6; --c-reset:#B5468A; --c-maint:#C2612A; --c-pm:#3F7D5F; --c-inspect:#5A6FD6; --c-service:#2E8E8E;
+  --ready:#2E7D4F; --ready-bg:#DDEFE0; --wip:#B7791F; --wip-bg:#F7EAD2; --bad:#C0392B; --bad-bg:#F7DED9; --gray:#8A8F8C; --gray-bg:#EFEAE1;
+  --f-display:"Montserrat","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Montserrat","Helvetica Neue",Arial,sans-serif;
+  --f-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:7px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#161A1B; --surface:#1E2325; --sunk:#262C2E; --line:#353C3E; --ink:#ECEAE4; --ink-2:#B4BBBC; --ink-3:#8C9390;
+  --accent:#F58257; --accent-ink:#1E1109; --accent-soft:#3A271D;
+  --c-ministry:#72A8B8; --c-event:#A98FD6; --c-reset:#E07BBE; --c-maint:#E3904C; --c-pm:#5FB98A; --c-inspect:#8A9BEC; --c-service:#4FB5B5;
+  --ready:#5FC08A; --ready-bg:#17352566; --wip:#E3B355; --wip-bg:#3A2F1566; --bad:#EE6B6B; --bad-bg:#3A1C1C66; --gray:#8C9390; --gray-bg:#262C2E;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161A1B; --surface:#1E2325; --sunk:#262C2E; --line:#353C3E; --ink:#ECEAE4; --ink-2:#B4BBBC; --ink-3:#8C9390;
+  --accent:#F58257; --accent-ink:#1E1109; --accent-soft:#3A271D;
+  --c-ministry:#72A8B8; --c-event:#A98FD6; --c-reset:#E07BBE; --c-maint:#E3904C; --c-pm:#5FB98A; --c-inspect:#8A9BEC; --c-service:#4FB5B5;
+  --ready:#5FC08A; --ready-bg:#17352566; --wip:#E3B355; --wip-bg:#3A2F1566; --bad:#EE6B6B; --bad-bg:#3A1C1C66; --gray:#8C9390; --gray-bg:#262C2E;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:.005em}
+h2{font-size:23px;font-weight:700}h3{font-size:16px;font-weight:600}h4{font-size:14px;font-weight:600}
+.mono{font-family:var(--f-mono);font-size:12px;letter-spacing:.02em}
+.muted{color:var(--ink-3)}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:600}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+.tnum{font-variant-numeric:tabular-nums}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:25;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand-mark{width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:13px}
+.brand h1{font-size:18px;font-weight:700;line-height:1.05}
+.brand small{display:block;font-size:11px;color:var(--ink-3);font-family:var(--f-body)}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;max-width:100%}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs a{padding:7px 10px;border-radius:5px;text-decoration:none;color:var(--ink-2);font-weight:500;white-space:nowrap;display:flex;gap:6px;align-items:center;font-size:13.5px}
+nav.tabs a:hover{background:var(--sunk);color:var(--ink)}
+nav.tabs a[aria-current="page"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+.badge{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-weight:600;display:inline-grid;place-items:center}
+.who{font-size:12px;color:var(--ink-3);white-space:nowrap;display:flex;gap:8px;align-items:center}
+.banner{margin-top:12px;padding:10px 12px;border-radius:var(--r);background:var(--sunk);border:1px solid var(--line);color:var(--ink-2);font-size:13px}
+.banner.warn{border-color:var(--wip)}
+main{padding-block:20px 72px}
+.view-head{display:flex;align-items:flex-end;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
+.view-head p{margin:4px 0 0;color:var(--ink-2);max-width:70ch}
+
+.btn{text-decoration:none;border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:5px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.danger{color:var(--bad);border-color:var(--bad);background:transparent}
+.btn.sm{padding:4px 9px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+
+.tiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:18px}
+@media (max-width:980px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px;border-top:3px solid var(--line)}
+.tile:hover{border-color:var(--ink-3)}
+.tile .n{font-family:var(--f-display);font-size:30px;font-weight:700;line-height:1.1}
+.tile .t{font-size:12px;color:var(--ink-2)}
+.tile.ok{border-top-color:var(--ready)}.tile.ok .n{color:var(--ready)}
+.tile.warn{border-top-color:var(--wip)}.tile.warn .n{color:var(--wip)}
+.tile.bad{border-top-color:var(--bad)}.tile.bad .n{color:var(--bad)}
+
+.grid2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px}
+@media (max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.stack{display:grid;gap:16px;align-content:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.panel-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.panel-b{padding:4px 0}
+.empty{padding:22px 16px;color:var(--ink-3);text-align:center;font-size:13px}
+.empty strong{display:block;color:var(--ink-2);margin-bottom:4px}
+
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:18px}
+@media (max-width:1000px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.board{grid-template-columns:minmax(0,1fr)}}
+.col{background:var(--sunk);border-radius:var(--r);padding:8px;min-width:0;display:flex;flex-direction:column;gap:6px}
+.col-h{display:flex;justify-content:space-between;align-items:center;padding:2px 4px 4px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--stripe,var(--line));border-radius:5px;padding:8px 10px;cursor:pointer;text-align:left;width:100%;display:flex;flex-direction:column;gap:3px}
+.card:hover{border-color:var(--ink-3)}
+.card .ttl{font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.card .meta{font-size:12px;color:var(--ink-3);display:flex;gap:8px;flex-wrap:wrap}
+.more{font-size:12px;color:var(--ink-3);padding:4px}
+
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;color:inherit}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--sunk)}
+.row .sub{font-size:12px;color:var(--ink-3)}
+.dot{width:10px;height:10px;border-radius:3px;background:var(--dot,var(--ink-3));flex:none}
+.dot.rd{border-radius:50%}
+
+.pill{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:10px;font-size:11.5px;font-weight:600;white-space:nowrap;border:1px solid currentColor}
+.s-ready{color:var(--ready)}.s-wip{color:var(--wip)}.s-bad{color:var(--bad)}.s-gray{color:var(--gray)}
+.chipstat{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:600}
+.chipstat.ready{background:var(--ready-bg);color:var(--ready)}
+.chipstat.wip{background:var(--wip-bg);color:var(--wip)}
+.chipstat.bad{background:var(--bad-bg);color:var(--bad)}
+.chipstat.gray{background:var(--gray-bg);color:var(--ink-3)}
+
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--sunk)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+.filters input,.filters select{padding:6px 9px;border:1px solid var(--line);border-radius:5px;background:var(--surface)}
+.filters input[type=search]{flex:1;min-width:160px}
+
+.cal-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.cal-bar h3{font-size:20px;min-width:170px}
+.legend{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px}
+.chip[aria-pressed="false"]{opacity:.45}
+.chip .dot{--dot:var(--k)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--line);gap:1px}
+.cal .dow{background:var(--sunk);padding:6px 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
+.day{background:var(--surface);min-height:120px;padding:4px 4px 6px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.day.out{background:var(--bg)}.day.out .dn{color:var(--ink-3)}
+.day.today .dn{background:var(--accent);color:var(--accent-ink);border-radius:4px}
+.day.sun{background:color-mix(in srgb,var(--accent-soft) 40%,var(--surface))}
+.dn{font-size:12px;font-weight:600;padding:1px 5px;align-self:flex-start;background:none;border:0;cursor:pointer}
+.ev{display:block;width:100%;text-align:left;font-size:11.5px;line-height:1.3;padding:2px 5px;border-radius:3px;border:0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:color-mix(in srgb,var(--k) 16%,var(--surface));color:var(--ink);border-left:3px solid var(--k)}
+.ev.done{text-decoration:line-through;opacity:.6}
+.ev.urgent{box-shadow:inset 0 0 0 1px var(--bad)}
+.ev .tm{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-2);margin-right:3px}
+.ev-more{font-size:11px;color:var(--ink-3);background:none;border:0;cursor:pointer;text-align:left;padding:1px 5px}
+.agenda{display:flex;flex-direction:column;gap:12px}
+.ag-day h4{margin:0 0 6px;color:var(--ink-2)}
+.ag-day .ev{white-space:normal;font-size:13px;padding:6px 8px;margin-bottom:4px}
+.cal-src{font-size:12px;color:var(--ink-3);margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.form{display:grid;gap:16px;max-width:820px}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+@media (max-width:640px){.seg{grid-template-columns:minmax(0,1fr)}}
+.seg label{border:1px solid var(--line);border-radius:var(--r);padding:14px;cursor:pointer;background:var(--surface);display:flex;gap:10px;align-items:flex-start}
+.seg label:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.seg input{margin-top:3px;accent-color:var(--accent)}
+.seg b{display:block;font-family:var(--f-display);font-size:16px}
+.seg span{font-size:13px;color:var(--ink-2)}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+@media (max-width:600px){.fgrid{grid-template-columns:minmax(0,1fr)}}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f.full{grid-column:1/-1}
+.f label{font-size:13px;font-weight:600;color:var(--ink-2)}
+.f input,.f select,.f textarea{padding:8px 10px;border:1px solid var(--line);border-radius:5px;background:var(--surface);width:100%}
+.f textarea{min-height:84px;resize:vertical}
+.f .hint{font-size:12px;color:var(--ink-3)}
+fieldset{border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0;background:var(--surface)}
+legend{font-family:var(--f-display);font-weight:600;font-size:15px;padding:0 6px}
+.drop{border:1.5px dashed var(--line);border-radius:var(--r);padding:16px;text-align:center;color:var(--ink-3);cursor:pointer;background:var(--bg)}
+.drop:hover,.drop.over{border-color:var(--accent);color:var(--ink-2)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.thumb{position:relative;width:88px;height:88px;border-radius:5px;overflow:hidden;border:1px solid var(--line);background:var(--sunk)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:11px;border:0;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;line-height:1}
+.routing-note{font-size:13px;color:var(--ink-2);background:var(--sunk);border-radius:var(--r);padding:10px 12px}
+.check{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line)}
+.check:last-child{border-bottom:0}
+.check input{margin-top:3px;width:17px;height:17px;accent-color:var(--accent);flex:none}
+.check .ct{flex:1;min-width:0}
+.check.done .ct{color:var(--ink-3);text-decoration:line-through}
+
+.scrim{position:fixed;inset:0;background:rgba(10,16,13,.5);z-index:40;display:flex;justify-content:flex-end}
+.drawer{width:min(640px,100%);height:100%;background:var(--surface);overflow-y:auto;padding:18px max(18px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) 18px;padding-top:calc(18px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:16px}
+.d-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.d-head h2{font-size:21px;overflow-wrap:anywhere}
+.kv{display:grid;grid-template-columns:135px minmax(0,1fr);gap:6px 12px;font-size:13px}
+.kv dt{color:var(--ink-3)}
+.kv dd{margin:0;overflow-wrap:anywhere}
+.steps{display:flex;gap:0;margin:2px 0;flex-wrap:wrap}
+.step{flex:1;min-width:60px;text-align:center;font-size:11px;color:var(--ink-3);position:relative;padding-top:16px}
+.step::before{content:"";position:absolute;top:4px;left:50%;width:10px;height:10px;border-radius:5px;transform:translateX(-50%);background:var(--line);z-index:1}
+.step::after{content:"";position:absolute;top:8px;left:-50%;width:100%;height:2px;background:var(--line)}
+.step:first-child::after{display:none}
+.step.done{color:var(--ink)}.step.done::before,.step.done::after{background:var(--accent)}
+.step.cur{color:var(--ink);font-weight:600}.step.cur::before{background:var(--surface);box-shadow:0 0 0 2px var(--accent)}
+.actions{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:var(--r);background:var(--sunk)}
+.hist{display:flex;flex-direction:column;gap:8px;font-size:13px;border-left:2px solid var(--line);padding-left:12px}
+.hist .h-at{font-size:11.5px;color:var(--ink-3)}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.photos a{display:block;aspect-ratio:1;border-radius:5px;overflow:hidden;border:1px solid var(--line);background:var(--sunk);max-width:100%}
+.photos img{width:100%;height:100%;object-fit:cover;display:block}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:6px;z-index:60;font-size:13px;max-width:min(92vw,520px)}
+.picker{position:relative}
+.picker .res{position:absolute;left:0;right:0;top:100%;background:var(--surface);border:1px solid var(--line);border-radius:5px;z-index:5;max-height:220px;overflow:auto;box-shadow:0 6px 18px rgba(0,0,0,.14)}
+.picker .res button{display:block;width:100%;text-align:left;padding:7px 10px;border:0;background:none;cursor:pointer}
+.picker .res button:hover{background:var(--sunk)}
+.picked{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:4px;flex-wrap:wrap}
+.notif{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:start}
+.notif.unread{background:color-mix(in srgb,var(--accent-soft) 60%,var(--surface))}
+.notif .txt{overflow-wrap:anywhere}
+.readybar{height:10px;border-radius:5px;background:var(--gray-bg);overflow:hidden;display:flex}
+.readybar i{display:block;height:100%}
+.roomcard{border:1px solid var(--line);border-radius:var(--r);padding:12px;background:var(--surface);display:flex;flex-direction:column;gap:6px;cursor:pointer;border-left:4px solid var(--stripe,var(--gray))}
+.roomcard:hover{border-color:var(--ink-3)}
+.roomgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.sun-sec h3{margin-bottom:8px}
+.pct{font-family:var(--f-display);font-weight:700}
+@media (prefers-reduced-motion:no-preference){.drawer{animation:sl .18s ease-out}@keyframes sl{from{transform:translateX(24px);opacity:.6}to{transform:none;opacity:1}}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">TSC</div>
+      <div><h1>Campus Readiness Hub</h1><small>Thompson Station Church</small></div>
+    </div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#dashboard" data-v="dashboard">Dashboard</a>
+      <a href="#sunday" data-v="sunday">Sunday Readiness</a>
+      <a href="#mytasks" data-v="mytasks">My Tasks <span class="badge" id="myBadge" hidden>0</span></a>
+      <a href="#request" data-v="request">Submit</a>
+      <a href="#workorders" data-v="workorders">Work Orders</a>
+      <a href="#calendar" data-v="calendar">Calendar</a>
+      <a href="#rooms" data-v="rooms">Rooms</a>
+      <a href="#inspections" data-v="inspections">Inspections</a>
+      <a href="#preventive" data-v="preventive">Preventive</a>
+      <a href="#reports" data-v="reports">Reports</a>
+      <a href="#inbox" data-v="inbox">Inbox <span class="badge" id="inboxBadge" hidden>0</span></a>
+      <a href="#routing" data-v="routing">Setup</a>
+    </nav>
+    <div class="who" id="who"></div>
+  </div>
+</header>
+<main class="wrap">
+  <div id="globalBanner"></div>
+  <section id="v-dashboard" data-view></section>
+  <section id="v-sunday" data-view hidden></section>
+  <section id="v-mytasks" data-view hidden></section>
+  <section id="v-request" data-view hidden></section>
+  <section id="v-workorders" data-view hidden></section>
+  <section id="v-calendar" data-view hidden></section>
+  <section id="v-rooms" data-view hidden></section>
+  <section id="v-inspections" data-view hidden></section>
+  <section id="v-preventive" data-view hidden></section>
+  <section id="v-reports" data-view hidden></section>
+  <section id="v-inbox" data-view hidden></section>
+  <section id="v-routing" data-view hidden></section>
+</main>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+<script>
+"use strict";
+/* ============ constants ============ */
+const PCO="Planning Center", PCO_TOOL="calendar_event_instances";
+const CATEGORIES=["General Repair","HVAC","Plumbing","Electrical","Lighting","Doors & Locks","Grounds & Parking","Custodial","Kitchen","AV & Tech","Safety & Security","Furniture & Setup"];
+const STATUS={new:"Submitted",accepted:"Assigned",awaiting_approval:"Awaiting approval",approved:"In progress",work_completed:"Done — needs verify",verified:"Verified · closed",declined:"Declined",blocked:"Blocked"};
+const OPEN_STEPS=["new","accepted","awaiting_approval","approved","work_completed"];
+const PRIORITY={urgent:"Urgent",high:"High",normal:"Normal",low:"Low"};
+const TYPES={problem:{label:"Problem / repair",css:"var(--c-maint)"},event_setup:{label:"Event setup",css:"var(--c-event)"},reset:{label:"Room reset",css:"var(--c-reset)"},service:{label:"Support request",css:"var(--c-service)"},inspection:{label:"Inspection fix",css:"var(--c-inspect)"}};
+const SERVICE_TYPES=["IT & AV support","Security / off-duty officer","Communications & media","Hospitality / food","Childcare / check-in","Facilities staffing","Other support"];
+const KIND={ministry:{label:"Ministry event",css:"var(--c-ministry)"},event_setup:{label:"Event setup",css:"var(--c-event)"},reset:{label:"Room reset",css:"var(--c-reset)"},problem:{label:"Repair",css:"var(--c-maint)"},service:{label:"Support request",css:"var(--c-service)"},pm:{label:"Preventive",css:"var(--c-pm)"},inspection:{label:"Inspection",css:"var(--c-inspect)"},readiness:{label:"Readiness deadline",css:"var(--accent)"}};
+const STARTER_ROOMS=[
+  ["Worship Center","Main",700,"Rows facing stage; center + side aisles clear; stage set for weekend worship","Worship, Production",true],
+  ["Fellowship Hall","Main",250,"Stacked and stored; floor clear unless an event is set","Hospitality, Events",false],
+  ["Chapel","Main",80,"Rows of chairs facing front; communion table centered","Weddings, Prayer",false],
+  ["Kids Large Room","Kids",150,"Stage set, small chairs in rows, check-in station on","Kids Ministry",true],
+  ["Preschool Rooms","Kids",0,"Tables and small chairs per room standard; toys sanitized","Preschool",true],
+  ["Student Center","Students",200,"Lounge + stage config; game area clear","Students",false],
+  ["Lobby / Commons","Main",0,"Coffee station stocked; greeter tables set; clean floors","Hospitality",true],
+  ["Classrooms (100 wing)","Main",30,"Tables in U-shape, 20 chairs, whiteboard clean","Adult Groups",false],
+  ["Kitchen","Main",0,"Counters clear and sanitized; equipment off; floor clean","Hospitality, Kitchen",false]
+];
+const STARTER_PM=[
+  ["HVAC filter replacement","All units","HVAC",90],["Fire extinguisher visual check","All buildings","Safety & Security",30],
+  ["Exit & emergency lighting test","All buildings","Safety & Security",30],["AED pads & battery check","Lobby / Kids","Safety & Security",30],
+  ["Fire alarm & sprinkler inspection (licensed vendor)","All buildings","Safety & Security",365],["Backflow preventer test","Mechanical room","Plumbing",365],
+  ["Kitchen hood & grease trap service","Kitchen","Kitchen",180],["Golf cart service & charge check","Carts","Grounds & Parking",90],
+  ["Generator run test","Generator","Electrical",30],["Gutter & roof drain cleaning","Roof","Grounds & Parking",180],["Playground safety inspection","Playground","Grounds & Parking",90]
+];
+const INSPECTION_TEMPLATES={
+  daily:{name:"Daily Campus Readiness",items:["Restrooms clean & stocked","Common areas tidy","Trash emptied","Lighting working","HVAC comfortable","Doors & access correct","No visible damage or hazards"]},
+  thursday:{name:"Thursday Sunday-Readiness Checkpoint",items:["Worship Center set for Sunday","Kids & preschool rooms set & sanitized","Coffee / hospitality areas prepared","Lobby & commons ready","Parking & exterior reviewed","Hallways & restrooms inspected","Deficiencies assigned as work orders"]},
+  sunday:{name:"Sunday Final Verification",items:["Worship Center ready","Kids & preschool ready","Hospitality & lobby ready","Parking & exterior ready","Audio / video / lighting checked","No open high-priority issues"]}
+};
+
+/* ============ state ============ */
+const S={db:null,user:null,assets:null,mcp:null,perms:null,downloads:null,
+  me:{id:null,name:"",email:null},canEdit:false,ready:false,loadNote:"Connecting…",
+  requests:[],rooms:[],pm:[],inspections:[],notifs:[],config:{},pcoDocs:{},pcoLive:{},pcoState:{},profiles:{},
+  view:"dashboard",calMonth:monthKey(new Date()),calMode:(window.innerWidth<700?"agenda":"month"),
+  calShow:{ministry:true,event_setup:true,reset:true,problem:true,service:true,pm:true,inspection:true,readiness:true},
+  woFilter:{q:"",status:"open",type:"all",room:"all",mine:false},
+  dashFilter:{building:"all",priority:"all"},draftPhotos:[],openId:null,openKind:"req",pmEditing:null,roomEditing:null};
+try{const sv=JSON.parse(localStorage.getItem("tscrh-prefs")||"{}");if(sv.calShow)Object.assign(S.calShow,sv.calShow);if(sv.calMode)S.calMode=sv.calMode}catch(e){}
+function savePrefs(){try{localStorage.setItem("tscrh-prefs",JSON.stringify({calShow:S.calShow,calMode:S.calMode}))}catch(e){}}
+
+/* ============ helpers ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function monthKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function parseYmd(s){if(!s)return null;const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function todayYmd(){return ymd(new Date())}
+function fmtDate(s){if(!s)return"";const d=typeof s==="string"&&s.length===10?parseYmd(s):new Date(s);if(!d||isNaN(d))return"";return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}
+function fmtDT(ms){if(!ms)return"";const d=new Date(ms);return d.toLocaleDateString(undefined,{month:"short",day:"numeric"})+" "+d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})}
+function fmtTime(t){if(!t)return"";const[h,m]=t.split(":").map(Number);const d=new Date();d.setHours(h,m||0);return d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})}
+function ago(ms){const s=(Date.now()-ms)/1000;if(s<60)return"just now";if(s<3600)return Math.floor(s/60)+" min ago";if(s<86400)return Math.floor(s/3600)+" hr ago";return Math.floor(s/86400)+" d ago"}
+function woNum(pfx){const d=new Date();return (pfx||"WO")+"-"+String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,"0")+"-"+Math.random().toString(36).slice(2,6).toUpperCase()}
+function nm(id){if(!id)return"Unassigned";const p=S.profiles[id];return(p&&p.name)||(id===S.me.id?(S.me.name||"You"):"Someone")}
+function toast(m){const r=$("#toastRoot");r.innerHTML='<div class="toast" role="status">'+esc(m)+'</div>';clearTimeout(toast.t);toast.t=setTimeout(()=>r.innerHTML="",4200)}
+const isOpen=r=>OPEN_STEPS.includes(r.status);
+const isClosed=r=>r.status==="verified";
+function room(id){return S.rooms.find(r=>r.id===id)}
+function roomName(id){const r=room(id);return r?r.name:""}
+function deadlineOf(r){return r.deadline||r.scheduledFor||r.eventDate||r.needBy||""}
+function isOverdue(r){if(!isOpen(r))return false;const d=deadlineOf(r);return d&&d<todayYmd()}
+function nextSunday(from){const d=from?new Date(from):new Date();const x=addDays(d,(7-d.getDay())%7||7);return ymd(d.getDay()===0?d:x)}
+function thisOrNextSunday(){const d=new Date();return d.getDay()===0?ymd(d):nextSunday()}
+function pill(st){const c={new:"s-wip",accepted:"s-wip",awaiting_approval:"s-wip",approved:"s-wip",work_completed:"s-wip",verified:"s-ready",declined:"s-gray",blocked:"s-bad"}[st]||"s-gray";return '<span class="pill '+c+'">'+esc(STATUS[st]||st)+'</span>'}
+function prPill(p){const c={urgent:"s-bad",high:"s-wip",normal:"s-gray",low:"s-gray"}[p]||"s-gray";return '<span class="pill '+c+'">'+esc(PRIORITY[p]||p)+'</span>'}
+function stripe(r){return r.priority==="urgent"?"var(--bad)":(TYPES[r.type]||TYPES.problem).css}
+function cfg(){return S.config||{}}
+/* ============ routing ============ */
+function acceptorFor(r){const c=cfg();if(r.type==="event_setup")return c.eventCoordinatorId||c.directorId||null;if(r.type==="reset")return (room(r.roomId)||{}).ownerId||c.resetOwnerId||c.directorId||null;if(r.type==="service")return (c.serviceOwners||{})[r.category]||c.directorId||null;return (c.categoryAssignees||{})[r.category]||c.directorId||null}
+function approverFor(r){const c=cfg();return r.type==="event_setup"?(c.eventApproverId||c.directorId||null):(c.maintenanceApproverId||c.directorId||null)}
+function verifierFor(r){const c=cfg();const ro=room(r.roomId);return r.verifierId||(ro&&ro.ownerId)||c.directorId||approverFor(r)||null}
+function threshold(){const n=Number(cfg().costThreshold);return isFinite(n)&&n>0?n:500}
+function needsApproval(r,cost){if(r.type==="event_setup")return cfg().eventsNeedApproval!==false;if(r.type==="reset"||r.type==="service")return false;return Number(cost||0)>=threshold()}
+function requireVerify(r){if(r.type==="event_setup"||r.type==="reset")return true;if(r.type==="service")return false;return cfg().verifyAll!==false}
+function canAct(r){const me=S.me.id;if(!me)return false;return S.canEdit||me===cfg().directorId||me===r.assigneeId||me===approverFor(r)||me===acceptorFor(r)||me===verifierFor(r)}
+function canVerify(r){const me=S.me.id;if(!me)return false;return S.canEdit||me===cfg().directorId||me===verifierFor(r)}
+
+/* ============ boot ============ */
+function waitClaude(){return new Promise(res=>{if(window.claude&&window.claude.use)return res(window.claude);let n=0;const iv=setInterval(()=>{if(window.claude&&window.claude.use){clearInterval(iv);res(window.claude)}else if(++n>60){clearInterval(iv);res(null)}},100)})}
+async function boot(){
+  route();
+  const c=await waitClaude();
+  if(!c){S.loadNote="";banner("Open this page in Claude to use the hub. Everything is stored in its shared database.","warn");renderAll();return}
+  const safe=n=>c.use(n).catch(()=>null);
+  const[db,user,assets,mcp,perms,downloads]=await Promise.all([safe("db"),safe("user"),safe("assets"),safe("mcp"),safe("permissions"),safe("downloads")]);
+  Object.assign(S,{db,user,assets,mcp,perms,downloads});
+  if(user){try{S.me.id=await user.id()}catch(e){}try{const m=await user.me();S.me.name=m.name||"";S.me.email=m.email||null;if(!S.me.id)S.me.id=m.id}catch(e){}try{S.canEdit=await user.canEdit()}catch(e){}
+    $("#who").textContent=S.me.name?("Signed in as "+S.me.name):""}
+  if(!db){S.loadNote="";banner("Sign in to claude.ai to use the hub. Data is stored in a shared database that needs a signed-in viewer.","warn");renderAll();return}
+  const timer=setTimeout(()=>{if(!S.ready){S.loadNote="";banner("The hub's data can't be reached yet. The page keeps trying.","warn");renderAll()}},10000);
+  const onErr=e=>{if(!e)return;if(e.code==="revoked")banner("Your access to this hub changed. Reload from Claude.","warn");else banner("Live updates stopped ("+e.code+"). Reload to reconnect.","warn")};
+  db.collection("requests").onSnapshot(s=>{S.requests=s.docs.map(d=>Object.assign({id:d.id},d.data()));if(!s.metadata.fromCache){S.ready=true;clearTimeout(timer);S.loadNote="";banner("")}refreshProfiles();renderAll()},onErr);
+  db.collection("rooms").onSnapshot(s=>{S.rooms=s.docs.map(d=>Object.assign({id:d.id},d.data())).sort((a,b)=>(a.name||"").localeCompare(b.name||""));refreshProfiles();renderAll()},onErr);
+  db.collection("pm").onSnapshot(s=>{S.pm=s.docs.map(d=>Object.assign({id:d.id},d.data()));refreshProfiles();renderAll()},onErr);
+  db.collection("inspections").onSnapshot(s=>{S.inspections=s.docs.map(d=>Object.assign({id:d.id},d.data())).sort((a,b)=>b.createdAt-a.createdAt);refreshProfiles();renderAll()},onErr);
+  db.doc("config/routing").onSnapshot(s=>{S.config=s.exists?s.data():{};refreshProfiles();renderAll()},onErr);
+  db.collection("pco").onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());S.pcoDocs=o;renderAll()},onErr);
+  if(S.me.id)db.collection("notifications").where("to","==",S.me.id).onSnapshot(s=>{S.notifs=s.docs.map(d=>Object.assign({id:d.id},d.data())).sort((a,b)=>b.createdAt-a.createdAt);refreshProfiles();renderAll()},onErr);
+  autoLoadPco();
+}
+function banner(m,k){$("#globalBanner").innerHTML=m?'<div class="banner '+(k||"")+'">'+m+'</div>':""}
+let profTimer=null;
+function refreshProfiles(){if(!S.user)return;clearTimeout(profTimer);profTimer=setTimeout(async()=>{
+  const ids=new Set();const c=cfg();
+  [c.directorId,c.eventCoordinatorId,c.eventApproverId,c.maintenanceApproverId,c.resetOwnerId,...Object.values(c.categoryAssignees||{}),...Object.values(c.serviceOwners||{}),...(c.team||[])].forEach(i=>i&&ids.add(i));
+  S.requests.forEach(r=>{[r.requesterId,r.assigneeId,r.verifierId,r.approvedBy,r.completedBy,r.verifiedBy].forEach(i=>i&&ids.add(i));(r.history||[]).forEach(h=>h.by&&ids.add(h.by))});
+  S.rooms.forEach(r=>r.ownerId&&ids.add(r.ownerId));S.pm.forEach(p=>p.assigneeId&&ids.add(p.assigneeId));S.inspections.forEach(i=>i.byId&&ids.add(i.byId));S.notifs.forEach(n=>n.from&&ids.add(n.from));
+  const need=[...ids].filter(i=>i&&!S.profiles[i]);if(!need.length)return;
+  try{const ps=await S.user.profiles(need);Object.assign(S.profiles,ps);renderAll()}catch(e){}
+},140)}
+
+/* ============ router ============ */
+const VIEWS=["dashboard","sunday","mytasks","request","workorders","calendar","rooms","inspections","preventive","reports","inbox","routing"];
+function route(){const h=(location.hash||"").slice(1);S.view=VIEWS.includes(h)?h:"dashboard";
+  document.querySelectorAll("[data-view]").forEach(s=>s.hidden=s.id!=="v-"+S.view);
+  document.querySelectorAll("nav.tabs a").forEach(a=>a.setAttribute("aria-current",a.dataset.v===S.view?"page":"false"));
+  window.scrollTo(0,0);renderAll(true);if(S.view==="calendar")ensureMonth(S.calMonth)}
+window.addEventListener("hashchange",route);
+function renderAll(force){
+  const un=S.notifs.filter(n=>!n.read).length;const b=$("#inboxBadge");b.hidden=!un;b.textContent=un;
+  const mine=myOpenTasks().length;const mb=$("#myBadge");mb.hidden=!mine;mb.textContent=mine;
+  const v=S.view;
+  if(v==="dashboard")renderDashboard();
+  else if(v==="sunday")renderSunday();
+  else if(v==="mytasks")renderMyTasks();
+  else if(v==="request"){if(force||!$("#reqForm"))renderRequestForm()}
+  else if(v==="workorders")renderWorkOrders();
+  else if(v==="calendar")renderCalendar();
+  else if(v==="rooms")renderRooms();
+  else if(v==="inspections")renderInspections();
+  else if(v==="preventive")renderPM();
+  else if(v==="reports")renderReports();
+  else if(v==="inbox")renderInbox();
+  else if(v==="routing"){const f=$("#routingForm");if(force||!f||!document.activeElement||!f.contains(document.activeElement))renderRouting()}
+  if(S.openId)renderDetail();
+}
+
+/* ============ Planning Center ============ */
+function pcoEventsFor(mk){const l=S.pcoLive[mk];if(l)return l.events;const d=S.pcoDocs[mk];return d?d.events||[]:[]}
+function pcoFreshness(mk){const l=S.pcoLive[mk];if(l)return{at:l.at,src:"live"};const d=S.pcoDocs[mk];return d?{at:d.fetchedAt,src:"saved"}:null}
+function allPcoEvents(){const seen={},out=[];Object.keys(S.pcoLive).concat(Object.keys(S.pcoDocs)).forEach(mk=>pcoEventsFor(mk).forEach(e=>{if(!seen[e.id]){seen[e.id]=1;out.push(e)}}));return out}
+async function autoLoadPco(){if(!S.mcp)return;let st="prompt";try{st=S.perms?await S.perms.state("mcp:"+PCO).catch(()=>"unavailable"):"prompt"}catch(e){}
+  if(st==="granted"){const n=new Date();ensureMonth(monthKey(n));const nx=new Date();nx.setMonth(nx.getMonth()+1,1);ensureMonth(monthKey(nx))}else{S.pcoState._needsClick=true;renderAll()}}
+async function ensureMonth(mk,click){
+  if(!S.mcp){S.pcoState[mk]={err:"none"};return}
+  if(S.pcoLive[mk]||(S.pcoState[mk]&&S.pcoState[mk].loading))return;
+  if(!click&&S.pcoState._needsClick)return;
+  S.pcoState[mk]={loading:true};renderAll();
+  const[y,m]=mk.split("-").map(Number);const start=new Date(y,m-1,1),end=new Date(y,m,0);
+  const events=[];let page=null,guard=0;
+  try{do{
+    const input={starts_at_start:ymd(addDays(start,-1)),starts_at_end:ymd(addDays(end,1)),per_page:100,kind:"standard",order_by:"starts_at",output_fields:["id","name","starts_at","ends_at","all_day_event","location","church_center_url"]};
+    if(page)input.page_after=page;
+    const res=await S.mcp.callTool(PCO,PCO_TOOL,input,{cache:{staleTime:600000,gcTime:86400000}});
+    const p=res.payload||{};(p.data||[]).forEach(it=>{const a=it.attributes||{};events.push({id:it.id,n:(a.name||"").slice(0,120),s:a.starts_at,e:a.ends_at,ad:!!a.all_day_event,l:(a.location||"").split(" - ")[0].slice(0,80),u:a.church_center_url||""})});
+    page=p.has_more?p.next_page_token:null;
+  }while(page&&++guard<10);
+    const inMonth=events.filter(e=>{const d=new Date(e.s);return d>=start&&d<addDays(end,1)});
+    S.pcoLive[mk]={events:inMonth,at:Date.now()};S.pcoState[mk]={ok:true};S.pcoState._needsClick=false;
+    const prev=S.pcoDocs[mk];const sig=JSON.stringify(inMonth);
+    if(S.db&&(!prev||JSON.stringify(prev.events||[])!==sig))S.db.doc("pco/"+mk).set({events:inMonth,fetchedAt:Date.now()}).catch(()=>{});
+  }catch(e){S.pcoState[mk]={err:(e&&e.code)||"upstream_error"}}
+  renderAll();if(S.view==="request"&&$("#rPco"))fillPcoOptions($("#rPco").value);
+}
+function pcoNote(mk){
+  const st=S.pcoState[mk]||{};const f=pcoFreshness(mk);
+  const fresh=f?(f.src==="live"?"Ministry calendar from Planning Center, updated "+ago(f.at):"Showing the saved ministry calendar from "+ago(f.at)):"";
+  if(!S.mcp)return fresh||"Ministry events appear once someone with Planning Center connected opens the calendar.";
+  if(st.loading)return "Loading the ministry calendar from Planning Center…";
+  if(S.pcoState._needsClick&&!S.pcoLive[mk])return (fresh?fresh+". ":"")+'<button class="btn sm" data-act="pco-load">Load live ministry calendar</button>';
+  const map={server_not_connected:"Add Planning Center in claude.ai Settings → Connectors to load events.",needs_reauth:"Reconnect Planning Center in claude.ai Settings → Connectors.",not_in_manifest:"Planning Center is turned off for this page (Permissions menu).",approval_required:'Planning Center needs your approval. <button class="btn sm" data-act="pco-load">Allow and load</button>',selection_required:"Choose which Planning Center connection when asked.",blocked_by_policy:"Your organization's policy blocks Planning Center here.",server_unavailable:'Planning Center didn\'t answer. <button class="btn sm" data-act="pco-load">Try again</button>'};
+  if(st.err&&st.err!=="none")return (map[st.err]||('Planning Center error. <button class="btn sm" data-act="pco-load">Try again</button>'))+(fresh?" "+fresh+".":"");
+  return fresh;
+}
+
+/* ============ readiness engine ============ */
+// events that touch a room: event_setup requests + ministry events whose location matches the room
+function roomUsesOn(roomId,fromYmd){
+  const r=room(roomId);if(!r)return[];const uses=[];
+  S.requests.forEach(x=>{if(x.type==="event_setup"&&x.roomId===roomId&&x.eventDate&&!["declined"].includes(x.status))uses.push({date:x.eventDate,label:x.title,kind:"event_setup",ref:x.id,changes:x.changesConfig})});
+  if(r.name)allPcoEvents().forEach(e=>{if((e.l||"").toLowerCase().includes(r.name.toLowerCase())){const d=ymd(new Date(e.s));uses.push({date:d,label:e.n,kind:"ministry",ref:e.id})}});
+  return uses.filter(u=>!fromYmd||u.date>=fromYmd).sort((a,b)=>a.date.localeCompare(b.date));
+}
+function roomNextUse(roomId){const u=roomUsesOn(roomId,todayYmd());const r=room(roomId);
+  let next=u[0]?u[0].date:null;
+  if(r&&r.sundayRequired){const sun=thisOrNextSunday();if(!next||sun<next)return{date:sun,label:"Sunday services",kind:"readiness"};}
+  return u[0]||null;}
+// readiness: bad if open high/urgent issue in room, or pending reset/setup overdue or due before next use; wip if open work; ready otherwise
+function roomReadiness(rm){
+  const issues=S.requests.filter(r=>r.roomId===rm.id&&isOpen(r));
+  const blockers=issues.filter(r=>r.status==="blocked"||((r.priority==="urgent"||r.priority==="high")&&r.type==="problem"));
+  const pendingReset=issues.filter(r=>r.type==="reset");
+  const pendingSetup=issues.filter(r=>r.type==="event_setup");
+  const next=roomNextUse(rm.id);
+  let state="ready",reason="Verified ready";
+  if(!next){state="gray";reason="No upcoming use scheduled"}
+  if(issues.length){state="wip";reason=issues.length+" open task"+(issues.length>1?"s":"")}
+  const atRisk=[...pendingReset,...pendingSetup].some(r=>{const d=deadlineOf(r);return d&&next&&d<=next.date})||pendingReset.some(r=>isOverdue(r));
+  if(blockers.length){state="bad";reason=blockers.length+" blocker"+(blockers.length>1?"s":"")}
+  else if(atRisk){state="bad";reason="Reset/setup due before next use"}
+  if(!rm.lastReadyAt&&state==="ready"&&next)reason="Not yet verified";
+  return{state,reason,issues,next,pendingReset};
+}
+/* ============ dashboard ============ */
+function buildings(){return [...new Set(S.rooms.map(r=>r.building).filter(Boolean))]}
+function dashRooms(){const f=S.dashFilter;return S.rooms.filter(r=>f.building==="all"||r.building===f.building)}
+function renderDashboard(){
+  const f=S.dashFilter;let R=S.requests.slice();
+  if(f.priority!=="all")R=R.filter(r=>r.priority===f.priority);
+  if(f.building!=="all")R=R.filter(r=>{const rm=room(r.roomId);return rm&&rm.building===f.building});
+  const open=R.filter(isOpen),fresh=open.filter(r=>r.status==="new"),waiting=open.filter(r=>r.status==="awaiting_approval"),toVerify=open.filter(r=>r.status==="work_completed"),blocked=open.filter(r=>r.status==="blocked");
+  const overdue=open.filter(isOverdue),unassigned=open.filter(r=>!r.assigneeId),resets=open.filter(r=>r.type==="reset"),urgent=open.filter(r=>r.priority==="urgent");
+  const done30=R.filter(r=>r.status==="verified"&&r.verifiedAt>Date.now()-30*864e5);
+  const rooms=dashRooms();const rr=rooms.map(roomReadiness);
+  const ready=rr.filter(x=>x.state==="ready").length,notReady=rr.filter(x=>x.state==="bad").length,wip=rr.filter(x=>x.state==="wip").length,gray=rr.filter(x=>x.state==="gray").length;
+  const pct=rooms.length?Math.round(ready/rooms.length*100):0;
+  const pmDue=S.pm.filter(p=>pmState(p)!=="ok");
+  const estSum=open.reduce((a,r)=>a+(Number(r.estCost)||0),0),appSum=open.reduce((a,r)=>a+(Number(r.approvedAmount)||0),0);
+
+  const bldOpts='<option value="all">All buildings</option>'+buildings().map(b=>'<option value="'+esc(b)+'"'+(f.building===b?" selected":"")+'>'+esc(b)+'</option>').join("");
+  const prOpts=['all','urgent','high','normal','low'].map(p=>'<option value="'+p+'"'+(f.priority===p?" selected":"")+'>'+(p==="all"?"All priorities":PRIORITY[p])+'</option>').join("");
+
+  const tiles=[
+    ["Rooms ready",ready+"/"+rooms.length,ready===rooms.length&&rooms.length?"ok":(notReady?"bad":"warn"),"sunday"],
+    ["Not ready / at risk",notReady,notReady?"bad":"ok","sunday"],
+    ["Needs verification",toVerify.length,toVerify.length?"warn":"ok","workorders:work_completed"],
+    ["Overdue",overdue.length,overdue.length?"bad":"ok","workorders:overdue"],
+    ["Unassigned",unassigned.length,unassigned.length?"bad":"ok","workorders:unassigned"],
+    ["Awaiting approval",waiting.length,waiting.length?"warn":"ok","workorders:awaiting_approval"],
+    ["Incomplete resets",resets.length,resets.length?"warn":"ok","workorders:reset"],
+    ["Blocked",blocked.length,blocked.length?"bad":"ok","workorders:blocked"],
+    ["Urgent open",urgent.length,urgent.length?"bad":"ok","workorders:urgent"],
+    ["Preventive due",pmDue.length,pmDue.length?"warn":"ok","preventive"],
+    ["Verified (30d)",done30.length,"ok","workorders:verified"],
+    ["Est → approved $","$"+estSum+" / "+appSum,"","workorders:open"]
+  ];
+  const cols=["new","accepted","awaiting_approval","approved","work_completed"];
+  const col=st=>{const items=open.filter(r=>r.status===st).sort((a,b)=>(b.priority==="urgent")-(a.priority==="urgent")||(deadlineOf(a)||"9").localeCompare(deadlineOf(b)||"9"));
+    return '<div class="col"><div class="col-h"><span class="label">'+esc(STATUS[st])+'</span><span class="mono muted">'+items.length+'</span></div>'+(items.length?items.slice(0,6).map(card).join("")+(items.length>6?'<div class="more">+'+(items.length-6)+' more</div>':""):'<div class="more">Nothing here</div>')+'</div>'};
+
+  const exceptions=[...blocked.map(r=>["bad",r]),...overdue.filter(r=>!blocked.includes(r)).map(r=>["bad",r]),...unassigned.filter(r=>!overdue.includes(r)&&!blocked.includes(r)).map(r=>["wip",r]),...waiting.map(r=>["wip",r])].slice(0,10);
+  const excHtml=exceptions.length?exceptions.map(([s,r])=>'<button class="row" data-open="'+esc(r.id)+'"><span class="dot rd" style="--dot:'+(s==="bad"?"var(--bad)":"var(--wip)")+'"></span><span><span>'+esc(r.title)+'</span><div class="sub">'+esc(r.number)+" · "+(roomName(r.roomId)||r.location||"")+" · "+(isOverdue(r)?"overdue "+fmtDate(deadlineOf(r)):(r.status==="blocked"?"blocked":(r.assigneeId?STATUS[r.status]:"unassigned")))+'</div></span>'+pill(r.status)+'</button>').join(""):'<div class="empty"><strong>Nothing needs attention</strong>No blocked, overdue, unassigned or pending-approval work.</div>';
+
+  const items=[];for(let i=0;i<7;i++){const d=ymd(addDays(new Date(),i));calItemsFor(d).forEach(x=>items.push(Object.assign({day:d},x)))}
+  const weekHtml=items.length?items.slice(0,12).map(x=>'<button class="row" data-open-cal="'+esc(x.key)+'"><span class="dot" style="--dot:'+KIND[x.kind].css+'"></span><span><span>'+esc(x.title)+'</span><div class="sub">'+esc(fmtDate(x.day))+(x.time?" · "+esc(x.time):"")+(x.where?" · "+esc(x.where):"")+'</div></span><span class="label">'+esc(KIND[x.kind].label)+'</span></button>').join(""):'<div class="empty">Nothing on the calendar this week.</div>';
+
+  const load={};open.forEach(r=>{const k=r.assigneeId||"_";load[k]=(load[k]||0)+1});
+  const loadHtml=Object.keys(load).length?Object.entries(load).sort((a,b)=>b[1]-a[1]).map(([id,n])=>'<div class="row" style="cursor:default"><span class="dot" style="--dot:var(--accent)"></span><span>'+esc(id==="_"?"Unassigned":nm(id))+'</span><span class="mono">'+n+'</span></div>').join(""):'<div class="empty">No open work assigned.</div>';
+
+  const setup=!cfg().directorId?'<div class="banner warn" style="margin:0 0 16px">Routing isn\'t set up, so new requests have no owner. <a href="#routing">Open Setup</a> to choose the facilities director and approvers.</div>':"";
+  const noRooms=!S.rooms.length?'<div class="banner" style="margin:0 0 16px">Add your campus rooms to turn on readiness tracking. <a href="#rooms">Open Rooms</a>.</div>':"";
+
+  $("#v-dashboard").innerHTML=
+   '<div class="view-head"><div><h2>Facilities overview</h2><p>Every request, reset and readiness check across campus. '+esc(S.loadNote||"")+'</p></div><div class="btn-row"><select id="dBld" class="btn" style="padding:6px 10px">'+bldOpts+'</select><select id="dPri" class="btn" style="padding:6px 10px">'+prOpts+'</select><a class="btn primary" href="#request">New request</a></div></div>'+setup+noRooms+
+   '<div class="panel" style="margin-bottom:18px"><div class="panel-h"><h3>Campus readiness</h3><a class="btn sm" href="#sunday">Sunday readiness</a></div><div style="padding:14px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><span class="pct" style="font-size:26px">'+pct+'%</span><span class="muted">'+ready+' ready · '+wip+' in progress · '+notReady+' not ready · '+gray+' idle</span></div><div class="readybar"><i style="width:'+(rooms.length?ready/rooms.length*100:0)+'%;background:var(--ready)"></i><i style="width:'+(rooms.length?wip/rooms.length*100:0)+'%;background:var(--wip)"></i><i style="width:'+(rooms.length?notReady/rooms.length*100:0)+'%;background:var(--bad)"></i></div></div></div>'+
+   '<div class="tiles">'+tiles.map(([t,n,c,go])=>'<button class="tile '+c+'" data-go="'+go+'"><span class="n">'+n+'</span><span class="t">'+t+'</span></button>').join("")+'</div>'+
+   '<div class="board">'+cols.map(col).join("")+'</div>'+
+   '<div class="grid2"><div class="stack"><div class="panel"><div class="panel-h"><h3>Needs leadership attention</h3><a class="btn sm" href="#workorders">All work orders</a></div><div class="panel-b">'+excHtml+'</div></div>'+
+   '<div class="panel"><div class="panel-h"><h3>Next 7 days</h3><a class="btn sm" href="#calendar">Calendar</a></div><div class="panel-b">'+weekHtml+'</div><div class="cal-src" style="padding:0 14px 12px">'+pcoNote(monthKey(new Date()))+'</div></div></div>'+
+   '<div class="stack"><div class="panel"><div class="panel-h"><h3>Preventive due</h3><a class="btn sm" href="#preventive">All</a></div><div class="panel-b">'+(pmDue.length?pmDue.sort((a,b)=>pmNext(a).localeCompare(pmNext(b))).slice(0,6).map(p=>'<a class="row" href="#preventive" style="text-decoration:none;color:inherit"><span class="dot" style="--dot:'+(pmState(p)==="overdue"?"var(--bad)":"var(--c-pm)")+'"></span><span>'+esc(p.title)+'<div class="sub">'+esc(p.location||"")+'</div></span><span class="mono '+(pmState(p)==="overdue"?"s-bad":"")+'">'+esc(fmtDate(pmNext(p)))+'</span></a>').join(""):'<div class="empty">'+(S.pm.length?"Nothing due soon.":"No preventive schedule yet.")+'</div>')+'</div></div>'+
+   '<div class="panel"><div class="panel-h"><h3>Open work by person</h3></div><div class="panel-b">'+loadHtml+'</div></div></div></div>';
+  $("#dBld").onchange=e=>{S.dashFilter.building=e.target.value;renderDashboard()};
+  $("#dPri").onchange=e=>{S.dashFilter.priority=e.target.value;renderDashboard()};
+}
+function card(r){return '<button class="card" style="--stripe:'+stripe(r)+'" data-open="'+esc(r.id)+'"><span class="mono muted">'+esc(r.number||"")+' · '+esc((TYPES[r.type]||TYPES.problem).label)+'</span><span class="ttl">'+esc(r.title)+'</span><span class="meta"><span>'+esc(roomName(r.roomId)||r.location||"")+'</span>'+(deadlineOf(r)?'<span'+(isOverdue(r)?' class="s-bad"':"")+'>'+esc(fmtDate(deadlineOf(r)))+'</span>':"")+(r.priority==="urgent"?'<span class="s-bad">Urgent</span>':"")+'<span>'+esc(r.assigneeId?nm(r.assigneeId):"Unassigned")+'</span></span></button>'}
+
+/* ============ Sunday readiness ============ */
+function renderSunday(){
+  const sun=thisOrNextSunday();const thu=ymd(addDays(parseYmd(sun),-3));const now=todayYmd();
+  const reqRooms=S.rooms.filter(r=>r.sundayRequired);
+  const rr=reqRooms.map(rm=>({rm,r:roomReadiness(rm)}));
+  const ready=rr.filter(x=>x.r.state==="ready").length;
+  const pct=reqRooms.length?Math.round(ready/reqRooms.length*100):0;
+  // changes after Thursday checkpoint that threaten Sunday
+  const lateChanges=[];
+  reqRooms.forEach(rm=>{roomUsesOn(rm.id,thu).forEach(u=>{if(u.date>=thu&&u.date<=sun&&u.kind!=="ministry"||(u.kind==="ministry"&&u.date>=thu&&u.date<sun)){
+    const resets=S.requests.filter(r=>r.type==="reset"&&r.roomId===rm.id&&isOpen(r));
+    lateChanges.push({rm,u,reset:resets[0],verified:resets.length===0})}})});
+  const openResets=S.requests.filter(r=>r.type==="reset"&&isOpen(r));
+  const highIssues=S.requests.filter(r=>isOpen(r)&&(r.priority==="urgent"||r.status==="blocked"));
+  const lastSun=S.inspections.filter(i=>i.template==="sunday").sort((a,b)=>b.createdAt-a.createdAt)[0];
+
+  const roomCard=({rm,r})=>'<button class="roomcard" style="--stripe:'+({ready:"var(--ready)",wip:"var(--wip)",bad:"var(--bad)",gray:"var(--gray)"}[r.state])+'" data-open-room="'+esc(rm.id)+'"><div style="display:flex;justify-content:space-between;gap:8px;align-items:start"><b>'+esc(rm.name)+'</b><span class="chipstat '+r.state+'">'+({ready:"Ready",wip:"In progress",bad:"Not ready",gray:"Idle"}[r.state])+'</span></div><div class="muted" style="font-size:12.5px">'+esc(r.reason)+'</div><div class="sub" style="font-size:12px;color:var(--ink-3)">Next use: '+(r.next?esc(r.next.label)+" · "+esc(fmtDate(r.next.date)):"none scheduled")+'</div></button>';
+
+  $("#v-sunday").innerHTML=
+   '<div class="view-head"><div><h2>Sunday readiness</h2><p>Target Sunday <b>'+esc(fmtDate(sun))+'</b>. Thursday checkpoint '+esc(fmtDate(thu))+' at '+esc(cfg().thursdayTime||"2:00 PM")+'. A room verified Thursday returns to at-risk if a later event changes it before its reset is verified.</p></div><div class="btn-row"><a class="btn" href="#inspections">Run checkpoint</a></div></div>'+
+   '<div class="tiles" style="grid-template-columns:repeat(4,minmax(0,1fr))">'+
+    [["Sunday rooms ready",ready+"/"+reqRooms.length,ready===reqRooms.length&&reqRooms.length?"ok":"bad"],["Incomplete resets",openResets.length,openResets.length?"bad":"ok"],["Late changes to reverify",lateChanges.filter(x=>!x.verified).length,lateChanges.filter(x=>!x.verified).length?"bad":"ok"],["Open urgent / blocked",highIssues.length,highIssues.length?"bad":"ok"]].map(([t,n,c])=>'<div class="tile '+c+'"><span class="n">'+n+'</span><span class="t">'+t+'</span></div>').join("")+'</div>'+
+   (lateChanges.filter(x=>!x.verified).length?'<div class="panel" style="margin-bottom:16px;border-color:var(--bad)"><div class="panel-h"><h3 style="color:var(--bad)">⚠ Changes after the Thursday checkpoint</h3></div><div class="panel-b">'+lateChanges.filter(x=>!x.verified).map(x=>'<div class="row" style="cursor:default"><span class="dot rd" style="--dot:var(--bad)"></span><span><b>'+esc(x.rm.name)+'</b> changed by <span>'+esc(x.u.label)+'</span><div class="sub">'+esc(fmtDate(x.u.date))+' · '+(x.reset?"reset "+STATUS[x.reset.status]+", due "+fmtDate(deadlineOf(x.reset)):"no reset task yet")+'</div></span>'+(x.reset?'<button class="btn sm" data-open="'+esc(x.reset.id)+'">Open reset</button>':'<button class="btn sm primary" data-make-reset="'+esc(x.rm.id)+'">Create reset</button>')+'</div>').join("")+'</div></div>':"")+
+   '<div class="panel" style="margin-bottom:16px"><div class="panel-h"><h3>Required Sunday spaces</h3><span class="muted">'+pct+'% ready</span></div><div style="padding:12px">'+(reqRooms.length?'<div class="roomgrid">'+rr.map(roomCard).join("")+'</div>':'<div class="empty"><strong>No rooms marked "required for Sunday"</strong>Edit a room under Rooms and check "Required for Sunday" to track it here.</div>')+'</div></div>'+
+   '<div class="grid2"><div class="panel"><div class="panel-h"><h3>Incomplete resets</h3></div><div class="panel-b">'+(openResets.length?openResets.sort((a,b)=>(deadlineOf(a)||"9").localeCompare(deadlineOf(b)||"9")).map(r=>'<button class="row" data-open="'+esc(r.id)+'"><span class="dot" style="--dot:var(--c-reset)"></span><span>'+esc(r.title)+'<div class="sub">'+esc(roomName(r.roomId))+' · due '+esc(fmtDate(deadlineOf(r)))+(isOverdue(r)?" · OVERDUE":"")+'</div></span>'+pill(r.status)+'</button>').join(""):'<div class="empty">No open resets. Rooms return to standard after every event.</div>')+'</div></div>'+
+   '<div class="panel"><div class="panel-h"><h3>Final verification</h3></div><div class="panel-b" style="padding:12px">'+(lastSun?'<p>Last Sunday checklist run '+esc(ago(lastSun.createdAt))+' by '+esc(nm(lastSun.byId))+' — '+lastSun.items.filter(i=>i.done).length+'/'+lastSun.items.length+' checked.</p>':'<p class="muted">No Sunday verification run yet.</p>')+'<a class="btn primary" href="#inspections">Run Sunday verification</a></div></div></div>';
+}
+/* ============ my tasks ============ */
+function myOpenTasks(){const me=S.me.id;if(!me)return[];return S.requests.filter(r=>isOpen(r)&&(r.assigneeId===me||(r.status==="awaiting_approval"&&approverFor(r)===me)||(r.status==="work_completed"&&canVerify(r))))}
+function renderMyTasks(){
+  const me=S.me.id;
+  if(!me){$("#v-mytasks").innerHTML='<div class="view-head"><div><h2>My tasks</h2></div></div><div class="empty"><strong>Sign in to see your tasks</strong></div>';return}
+  const mine=myOpenTasks();const po={urgent:0,high:1,normal:2,low:3};
+  mine.sort((a,b)=>(isOverdue(b)-isOverdue(a))||(po[a.priority]-po[b.priority])||((deadlineOf(a)||"9").localeCompare(deadlineOf(b)||"9")));
+  const submitted=S.requests.filter(r=>r.requesterId===me).sort((a,b)=>b.createdAt-a.createdAt).slice(0,8);
+  const group=(title,arr)=>arr.length?'<div class="panel" style="margin-bottom:14px"><div class="panel-h"><h3>'+title+'</h3><span class="mono muted">'+arr.length+'</span></div><div class="panel-b">'+arr.map(r=>{const todo=r.status==="work_completed"?"Verify":(r.status==="awaiting_approval"?"Approve":(r.status==="new"?"Accept":"Work"));return '<button class="row" data-open="'+esc(r.id)+'"><span class="dot rd" style="--dot:'+(isOverdue(r)?"var(--bad)":stripe(r))+'"></span><span><b>'+esc(r.title)+'</b><div class="sub">'+esc(r.number)+' · '+esc(roomName(r.roomId)||r.location||"")+(deadlineOf(r)?" · due "+fmtDate(deadlineOf(r))+(isOverdue(r)?" (overdue)":""):"")+'</div></span><span class="chipstat '+(todo==="Verify"||todo==="Approve"?"wip":"gray")+'">'+todo+'</span></button>'}).join("")+'</div></div>':"";
+  const toVerify=mine.filter(r=>r.status==="work_completed"),toApprove=mine.filter(r=>r.status==="awaiting_approval"),active=mine.filter(r=>!["work_completed","awaiting_approval"].includes(r.status));
+  $("#v-mytasks").innerHTML='<div class="view-head"><div><h2>My tasks</h2><p>Everything waiting on you, most urgent first. Tap one to act in under a minute.</p></div><a class="btn primary" href="#request">New request</a></div>'+
+   (mine.length?group("Verify completed work",toVerify)+group("Approve",toApprove)+group("My assigned work",active):'<div class="panel" style="margin-bottom:14px"><div class="empty"><strong>Nothing waiting on you</strong>Assigned work, approvals and verifications show here.</div></div>')+
+   '<div class="panel"><div class="panel-h"><h3>Requests I submitted</h3></div><div class="panel-b">'+(submitted.length?submitted.map(r=>'<button class="row" data-open="'+esc(r.id)+'"><span class="dot" style="--dot:'+stripe(r)+'"></span><span>'+esc(r.title)+'<div class="sub">'+esc(r.number)+'</div></span>'+pill(r.status)+'</button>').join(""):'<div class="empty">You haven\'t submitted any requests.</div>')+'</div></div>';
+}
+
+/* ============ request form ============ */
+let prefill={};
+function renderRequestForm(){
+  const p=prefill;prefill={};const t0=p.type||"problem";
+  const roomSel=(id,sel)=>'<select id="'+id+'" name="roomId"><option value="">— choose a room —</option>'+S.rooms.map(r=>'<option value="'+esc(r.id)+'"'+(sel===r.id?" selected":"")+'>'+esc(r.name)+(r.building?" ("+esc(r.building)+")":"")+'</option>').join("")+'</select>';
+  $("#v-request").innerHTML='<div class="view-head"><div><h2>Submit a request</h2><p>Pick what you need. It goes straight to the right owner, and you can track every step in My Tasks and your Inbox.</p></div></div>'+
+  '<form id="reqForm" class="form" novalidate>'+
+  '<div class="seg">'+
+   '<label><input type="radio" name="type" value="problem" '+(t0==="problem"?"checked":"")+'><span><b>Report a problem</b><span>Broken equipment, HVAC, lighting, plumbing, cleanliness, damage, safety</span></span></label>'+
+   '<label><input type="radio" name="type" value="event_setup" '+(t0==="event_setup"?"checked":"")+'><span><b>Event / room setup</b><span>Tables, chairs, AV, staging, special layout for a ministry event</span></span></label>'+
+   '<label><input type="radio" name="type" value="reset" '+(t0==="reset"?"checked":"")+'><span><b>Room reset</b><span>Return a room to standard, or report it was left in poor condition</span></span></label>'+
+   '<label><input type="radio" name="type" value="service" '+(t0==="service"?"checked":"")+'><span><b>Request support</b><span>IT & AV, security / off-duty officer, communications & media, hospitality, childcare</span></span></label>'+
+  '</div>'+
+  '<fieldset><legend>Details</legend><div class="fgrid">'+
+   '<div class="f full"><label for="rTitle">Short title</label><input id="rTitle" name="title" required maxlength="120" value="'+esc(p.title||"")+'" placeholder="Leaking faucet in women\'s restroom"></div>'+
+   '<div class="f"><label for="rRoom">Room</label>'+roomSel("rRoom",p.roomId)+'<span class="hint">'+(S.rooms.length?"Readiness and resets key off the room.":"No rooms added yet — you can still type a location below.")+'</span></div>'+
+   '<div class="f"><label for="rLoc">Location detail</label><input id="rLoc" name="location" maxlength="80" placeholder="Room 112, north entrance" value="'+esc(p.location||"")+'"></div>'+
+   '<div class="f full"><label for="rDesc">Describe it</label><textarea id="rDesc" name="description" maxlength="3000" placeholder="What did you notice, when, anything we should know?">'+esc(p.description||"")+'</textarea></div>'+
+  '</div></fieldset>'+
+  '<fieldset id="fsProblem"><legend>Priority & timing</legend><div class="fgrid">'+
+   '<div class="f"><label for="rCat">Category</label><select id="rCat" name="category">'+CATEGORIES.map(c=>'<option>'+esc(c)+'</option>').join("")+'</select></div>'+
+   '<div class="f"><label for="rPri">Priority</label><select id="rPri" name="priority"><option value="low">Low · when convenient</option><option value="normal" selected>Normal · this week</option><option value="high">High · 1–2 days</option><option value="urgent">Urgent · safety or service impact</option></select></div>'+
+   '<div class="f"><label for="rNeed">Needed by</label><input id="rNeed" name="needBy" type="date"></div>'+
+  '</div></fieldset>'+
+  '<fieldset id="fsEvent"><legend>Event setup</legend><div class="fgrid">'+
+   '<div class="f"><label for="rDate">Event date</label><input id="rDate" name="eventDate" type="date" value="'+esc(p.eventDate||"")+'"></div>'+
+   '<div class="f"><label for="rAtt">Expected attendance</label><input id="rAtt" name="attendance" type="number" min="0" inputmode="numeric"></div>'+
+   '<div class="f"><label for="rStart">Setup needed by</label><input id="rStart" name="startTime" type="time"></div>'+
+   '<div class="f"><label for="rEnd">Event ends</label><input id="rEnd" name="endTime" type="time"></div>'+
+   '<div class="f full"><label for="rPco">Ministry calendar event</label><select id="rPco" name="pcoEventId"><option value="">Not on the calendar / not sure</option></select><span class="hint" id="pcoHint">Pick the date to see that day\'s Planning Center events.</span></div>'+
+   '<div class="f full"><label for="rSetup">Setup needs</label><textarea id="rSetup" name="setupNeeds" maxlength="2000" placeholder="8 round tables, 64 chairs, projector + mic, doors unlocked 5:30 PM, coffee station">'+esc(p.setupNeeds||"")+'</textarea></div>'+
+   '<div class="f full"><label style="display:flex;gap:9px;align-items:flex-start"><input type="checkbox" id="rChg" name="changesConfig" checked style="margin-top:3px;width:17px;height:17px;accent-color:var(--accent)"><span>This changes the room\'s standard layout — <b>create a post-event reset automatically</b> so it\'s restored before the next use.</span></label></div>'+
+  '</div></fieldset>'+
+  '<fieldset id="fsReset"><legend>Reset</legend><div class="fgrid">'+
+   '<div class="f"><label for="rResetBy">Reset needed by</label><input id="rResetBy" name="resetBy" type="date"></div>'+
+   '<div class="f"><label for="rResetWhy">Reason</label><select id="rResetWhy" name="resetReason"><option>Return to standard after an event</option><option>Left in unacceptable condition</option><option>Scheduled changeover</option></select></div>'+
+   '<div class="f full hint" id="resetStd"></div>'+
+  '</div></fieldset>'+
+  '<fieldset id="fsService"><legend>Support request</legend><div class="fgrid">'+
+   '<div class="f"><label for="rSvc">What do you need?</label><select id="rSvc" name="serviceType">'+SERVICE_TYPES.map(s=>'<option'+(p.serviceType===s?" selected":"")+'>'+esc(s)+'</option>').join("")+'</select></div>'+
+   '<div class="f"><label for="rSvcPri">Priority</label><select id="rSvcPri" name="servicePriority"><option value="normal" selected>Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>'+
+   '<div class="f"><label for="rSvcDate">Needed for (date)</label><input id="rSvcDate" name="serviceDate" type="date" value="'+esc(p.serviceDate||"")+'"></div>'+
+   '<div class="f"><label for="rSvcTime">Time / window</label><input id="rSvcTime" name="serviceTime" maxlength="60" placeholder="Sun 8:30 AM–12:30 PM"></div>'+
+   '<div class="f full hint">Security / off-duty officer requests and anything involving minors or safety are coordinated by staff — this logs and routes the request; it does not contact police or vendors on its own.</div>'+
+  '</div></fieldset>'+
+  '<fieldset><legend>Photos</legend><div class="drop" id="drop" tabindex="0" role="button">Add photos: tap to choose or drag them here. Phone photos (JPG, PNG, HEIC) work.</div><input id="rFiles" type="file" accept="image/*" multiple hidden><div class="thumbs" id="thumbs"></div></fieldset>'+
+  '<fieldset><legend>Your contact</legend><div class="fgrid"><div class="f"><label for="rName">Your name</label><input id="rName" name="contactName" maxlength="80" value="'+esc(S.me.name||"")+'"></div><div class="f"><label for="rMin">Ministry / team</label><input id="rMin" name="ministry" maxlength="80" placeholder="Students, Kids, Worship, Office"></div><div class="f"><label for="rPhone">Best phone (optional)</label><input id="rPhone" name="phone" maxlength="30" inputmode="tel"></div></div></fieldset>'+
+  '<div class="routing-note" id="routeNote"></div>'+
+  '<div style="display:flex;gap:10px;align-items:center"><button class="btn primary" type="submit" id="rSubmit">Submit request</button><span class="muted" id="rMsg"></span></div></form>';
+  const form=$("#reqForm");
+  const sync=()=>{const t=form.type.value;$("#fsProblem").hidden=t!=="problem";$("#fsEvent").hidden=t!=="event_setup";$("#fsReset").hidden=t!=="reset";$("#fsService").hidden=t!=="service";
+    const fake={type:t,category:t==="service"?form.serviceType.value:form.category.value,priority:t==="problem"?form.priority.value:"normal",roomId:form.roomId.value};const who=acceptorFor(fake);
+    let note=who?"Goes to "+nm(who):"Routing isn't set up — it will still be saved and appear on the dashboard.";
+    if(t==="service"&&who)note="Goes to "+nm(who)+" ("+form.serviceType.value+"). Set support owners in Setup so it reaches the right team.";
+    if(t==="event_setup"&&who)note="Goes to "+nm(who)+" to accept"+(needsApproval(fake)?", then "+nm(approverFor(fake))+" to approve.":".")+" A reset will be created when it's approved if it changes the layout.";
+    if(t==="reset"&&who)note="Goes to "+nm(who)+" to complete, then a verifier confirms the room matches standard.";
+    $("#routeNote").textContent=note;
+    const rm=room(form.roomId.value);const sd=$("#resetStd");if(sd)sd.innerHTML=rm&&rm.standardConfig?"Standard for "+esc(rm.name)+": "+esc(rm.standardConfig):"";};
+  form.addEventListener("change",e=>{sync();if(e.target.name==="eventDate")fillPcoOptions()});sync();
+  if(p.pcoEventId)setTimeout(()=>fillPcoOptions(p.pcoEventId),0);
+  S.draftPhotos=[];drawThumbs();
+  const drop=$("#drop"),fi=$("#rFiles");
+  drop.onclick=()=>fi.click();drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fi.click()}};
+  fi.onchange=()=>{addPhotos(fi.files);fi.value=""};
+  drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")};drop.ondragleave=()=>drop.classList.remove("over");
+  drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");addPhotos(e.dataTransfer.files)};
+  form.onsubmit=submitRequest;
+}
+function fillPcoOptions(sel){const form=$("#reqForm");if(!form)return;const d=form.eventDate?form.eventDate.value:"";const s=$("#rPco");if(!s)return;
+  if(!d){s.innerHTML='<option value="">Not on the calendar / not sure</option>';return}
+  const mk=d.slice(0,7);if(!S.pcoLive[mk]&&!S.pcoDocs[mk])ensureMonth(mk);
+  const evs=pcoEventsFor(mk).filter(e=>ymd(new Date(e.s))===d);
+  s.innerHTML='<option value="">Not on the calendar / not sure</option>'+evs.map(e=>'<option value="'+esc(e.id)+'"'+(sel===e.id?" selected":"")+'>'+esc(e.n)+(e.ad?"":" · "+new Date(e.s).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"}))+'</option>').join("");
+  $("#pcoHint").textContent=evs.length?evs.length+" event"+(evs.length>1?"s":"")+" on the ministry calendar that day.":"No ministry events found that day"+((S.pcoState[mk]&&S.pcoState[mk].loading)?" yet (loading…).":".");}
+async function shrink(file,max,q){const url=URL.createObjectURL(file);
+  try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});
+    const sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement("canvas");c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(r,"image/jpeg",q))}finally{URL.revokeObjectURL(url)}}
+async function addPhotos(files){for(const f of[...files].slice(0,6-S.draftPhotos.length)){if(!f.type.startsWith("image/")){toast(f.name+" isn't an image.");continue}
+  try{const b=await shrink(f,1600,.82);S.draftPhotos.push({blob:b,preview:URL.createObjectURL(b)})}catch(e){toast("Couldn't read "+f.name+".")}}drawThumbs()}
+function drawThumbs(){const t=$("#thumbs");if(!t)return;t.innerHTML=S.draftPhotos.map((p,i)=>'<div class="thumb"><img src="'+p.preview+'" alt="Photo '+(i+1)+'"><button type="button" data-rmphoto="'+i+'" aria-label="Remove">×</button></div>').join("")}
+async function storePhotos(list){const out=[];for(const p of list){let done=false;
+  if(S.assets){try{const r=await S.assets.upload(p.blob,{type:"image/jpeg"});out.push({assetId:r.id});done=true}catch(e){}}
+  if(!done&&S.db){try{const small=await shrink(new File([p.blob],"p.jpg",{type:"image/jpeg"}),900,.68);const data=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(small)});
+    if(data.length<240000){const ref=S.db.collection("photos").doc();await ref.set({data,at:Date.now()});out.push({photoDoc:ref.id});done=true}}catch(e){}}
+  if(!done)toast("One photo couldn't be saved.")}return out}
+async function submitRequest(e){e.preventDefault();const form=e.target;const fd=Object.fromEntries(new FormData(form).entries());const msg=$("#rMsg");
+  if(!S.db){msg.textContent="Open in Claude while signed in to submit.";return}
+  if(!fd.title.trim()){msg.textContent="Add a short title.";form.title.focus();return}
+  if(fd.type==="event_setup"&&!fd.eventDate){msg.textContent="Add the event date.";form.eventDate.focus();return}
+  const btn=$("#rSubmit");btn.disabled=true;msg.textContent=S.draftPhotos.length?"Uploading photos…":"Saving…";
+  try{const photos=await storePhotos(S.draftPhotos);const now=Date.now();
+    let deadline=fd.type==="event_setup"?fd.eventDate:(fd.type==="reset"?fd.resetBy||"":(fd.type==="service"?fd.serviceDate||"":fd.needBy||""));
+    const r={number:woNum(fd.type==="reset"?"RS":fd.type==="event_setup"?"EV":fd.type==="service"?"SV":"WO"),type:fd.type,title:fd.title.trim(),description:fd.description.trim(),
+      roomId:fd.roomId||"",location:fd.location.trim(),category:fd.type==="problem"?fd.category:(fd.type==="event_setup"?"Furniture & Setup":fd.type==="service"?fd.serviceType:"Custodial"),
+      serviceTime:fd.serviceTime||"",priority:fd.type==="problem"?fd.priority:(fd.type==="service"?(fd.servicePriority||"normal"):(fd.type==="reset"?"high":"normal")),needBy:fd.needBy||"",deadline,
+      eventDate:fd.type==="event_setup"?fd.eventDate:"",startTime:fd.startTime||"",endTime:fd.endTime||"",attendance:fd.attendance||"",setupNeeds:fd.setupNeeds||"",changesConfig:fd.type==="event_setup"?!!fd.changesConfig:false,
+      pcoEventId:fd.pcoEventId||"",resetReason:fd.resetReason||"",contactName:fd.contactName.trim(),ministry:fd.ministry.trim(),phone:fd.phone.trim(),photos,
+      checklist:defaultChecklist(fd.type,fd.roomId),status:"new",requesterId:S.me.id||null,createdAt:now,updatedAt:now,history:[{at:now,by:S.me.id,action:"Submitted"}]};
+    r.assigneeId=acceptorFor(r);r.verifierId=verifierFor(r);
+    const ref=S.db.collection("requests").doc();await ref.set(r);
+    const to=[r.assigneeId];if(cfg().ccDirector!==false)to.push(cfg().directorId);
+    await notify(to,Object.assign({id:ref.id},r),r.priority==="urgent"?"URGENT request submitted":"New "+(TYPES[r.type].label.toLowerCase())+" needs you");
+    S.draftPhotos=[];renderRequestForm();toast("Request "+r.number+" submitted.");
+  }catch(err){btn.disabled=false;msg.textContent=(err&&err.code==="invalid_argument")?"You don't have permission to submit. Ask the owner to share this as Contributor.":"Didn't save. Check your connection and retry."}}
+function defaultChecklist(type,roomId){
+  if(type==="reset"){const rm=room(roomId);const base=["Furniture returned to standard layout","Floors clean, trash emptied","Equipment returned & powered down","Room matches standard photo"];if(rm&&rm.cleaning)base.push(rm.cleaning);return base.map(t=>({t,done:false}))}
+  if(type==="event_setup")return["Tables & chairs placed per request","AV / staging set and tested","Doors unlocked / HVAC scheduled","Walked the room against the request"].map(t=>({t,done:false}));
+  return[];}
+/* ============ calendar ============ */
+function calItemsFor(day){
+  const out=[];
+  if(S.calShow.ministry)pcoEventsFor(day.slice(0,7)).forEach(e=>{const d=new Date(e.s);if(ymd(d)!==day)return;out.push({kind:"ministry",key:"p:"+e.id,title:e.n,time:e.ad?"":d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"}),sort:e.ad?"00:00":d.toTimeString().slice(0,5),where:e.l,url:e.u})});
+  S.requests.forEach(r=>{if(r.status==="declined")return;const k=r.type;if(!S.calShow[k==="problem"?"problem":k])return;const dd=deadlineOf(r);if(dd!==day)return;
+    out.push({kind:k==="problem"?"problem":k,key:"r:"+r.id,title:(k==="reset"?"Reset: ":k==="event_setup"?"Setup: ":"")+r.title,time:r.startTime?fmtTime(r.startTime):"",sort:r.startTime||(k==="reset"?"22:00":"23:00"),where:roomName(r.roomId)||r.location,done:r.status==="verified",urgent:r.priority==="urgent"||isOverdue(r)})});
+  if(S.calShow.pm)S.pm.forEach(p=>{if(pmNext(p)===day)out.push({kind:"pm",key:"m:"+p.id,title:p.title,time:"",sort:"23:30",where:p.location,urgent:pmState(p)==="overdue"})});
+  if(S.calShow.readiness){const sun=thisOrNextSunday();if(day===sun&&S.rooms.some(r=>r.sundayRequired))out.push({kind:"readiness",key:"s:sunday",title:"Sunday services — final readiness",time:cfg().sundayTime||"",sort:"06:00",where:"Campus"});
+    const thu=ymd(addDays(parseYmd(thisOrNextSunday()),-3));if(day===thu&&S.rooms.some(r=>r.sundayRequired))out.push({kind:"inspection",key:"i:thursday",title:"Thursday readiness checkpoint",time:cfg().thursdayTime||"2:00 PM",sort:"14:00",where:"Campus"})}
+  return out.sort((a,b)=>a.sort.localeCompare(b.sort));}
+function evBtn(x){return '<button class="ev'+(x.done?" done":"")+(x.urgent?" urgent":"")+'" style="--k:'+KIND[x.kind].css+'" data-open-cal="'+esc(x.key)+'" title="'+esc(x.title+(x.where?" · "+x.where:""))+'">'+(x.time?'<span class="tm">'+esc(x.time)+'</span>':"")+esc(x.title)+'</button>'}
+function renderCalendar(){
+  const[y,m]=S.calMonth.split("-").map(Number);const first=new Date(y,m-1,1);const label=first.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+  const legend='<div class="legend" role="group" aria-label="Show on calendar">'+Object.entries(KIND).filter(([k])=>k in S.calShow).map(([k,v])=>'<button class="chip" aria-pressed="'+S.calShow[k]+'" data-toggle="'+k+'" style="--k:'+v.css+'"><span class="dot"></span>'+v.label+'</button>').join("")+'<span class="chip" style="cursor:default"><span class="dot" style="--dot:var(--bad)"></span>Outlined = urgent/overdue</span></div>';
+  let body="";const today=todayYmd();const sun=thisOrNextSunday();
+  if(S.calMode==="month"){const sg=addDays(first,-first.getDay());let cells="";
+    for(let i=0;i<42;i++){const d=addDays(sg,i);if(i>=35&&d.getMonth()!==m-1)break;const k=ymd(d);const its=calItemsFor(k);
+      cells+='<div class="day'+(d.getMonth()!==m-1?" out":"")+(k===today?" today":"")+(d.getDay()===0?" sun":"")+'"><button class="dn" data-day="'+k+'" aria-label="'+esc(fmtDate(k))+'">'+d.getDate()+'</button>'+its.slice(0,4).map(evBtn).join("")+(its.length>4?'<button class="ev-more" data-day="'+k+'">+'+(its.length-4)+' more</button>':"")+'</div>'}
+    body='<div class="tbl-wrap"><div class="cal" style="min-width:700px">'+["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>'<div class="dow">'+d+'</div>').join("")+cells+'</div></div>';
+  }else{const days=new Date(y,m,0).getDate();let html="";
+    for(let i=1;i<=days;i++){const k=ymd(new Date(y,m-1,i));if(S.calMonth===monthKey(new Date())&&k<today)continue;const its=calItemsFor(k);if(!its.length)continue;html+='<div class="ag-day"><h4>'+esc(fmtDate(k))+(k===today?" · Today":k===sun?" · Sunday":"")+'</h4>'+its.map(evBtn).join("")+'</div>'}
+    body='<div class="agenda">'+(html||'<div class="panel empty"><strong>Nothing scheduled</strong>Turn on more categories above or pick another month.</div>')+'</div>';}
+  $("#v-calendar").innerHTML='<div class="view-head"><div><h2>Unified calendar</h2><p>Ministry events, setups, resets, repairs, preventive maintenance and readiness deadlines in one view.</p></div></div>'+
+   '<div class="cal-bar"><button class="btn sm" data-cal="-1" aria-label="Previous">‹</button><h3>'+esc(label)+'</h3><button class="btn sm" data-cal="1" aria-label="Next">›</button><button class="btn sm" data-cal="0">Today</button><span style="flex:1"></span><button class="btn sm" data-calmode="month" aria-pressed="'+(S.calMode==="month")+'">Month</button><button class="btn sm" data-calmode="agenda" aria-pressed="'+(S.calMode==="agenda")+'">Agenda</button></div>'+legend+body+'<div class="cal-src">'+pcoNote(S.calMonth)+'</div>';
+}
+function openDay(k){const its=calItemsFor(k);showModal('<div class="d-head"><h2>'+esc(fmtDate(k))+'</h2><button class="btn sm" data-close>Close</button></div>'+(its.length?'<div class="ag-day">'+its.map(evBtn).join("")+'</div>':'<div class="empty">Nothing scheduled.</div>')+'<a class="btn primary" href="#request" data-close data-prefill-date="'+k+'">Request event setup for this day</a>')}
+function openCalKey(key){const t=key.slice(0,1),id=key.slice(2);
+  if(t==="r"){openDetail(id);return}
+  if(t==="m"){location.hash="#preventive";closeModal();return}
+  if(t==="s"){location.hash="#sunday";closeModal();return}
+  if(t==="i"){location.hash="#inspections";closeModal();return}
+  if(t==="p"){const e=allPcoEvents().find(x=>x.id===id);if(!e)return;const s=new Date(e.s),en=new Date(e.e);
+    showModal('<div class="d-head"><div><span class="label" style="color:var(--c-ministry)">Ministry event · Planning Center</span><h2>'+esc(e.n)+'</h2></div><button class="btn sm" data-close>Close</button></div><dl class="kv"><dt>When</dt><dd>'+esc(fmtDate(ymd(s)))+(e.ad?" · All day":" · "+s.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})+" – "+en.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"}))+'</dd><dt>Where</dt><dd>'+esc(e.l||"Not listed")+'</dd></dl>'+(e.u?'<a class="btn" href="'+esc(e.u)+'" target="_blank" rel="noopener">Open in Church Center</a>':"")+'<button class="btn primary" data-link-pco="'+esc(e.id)+'">Create setup / facilities request for this event</button>')}}
+
+/* ============ work orders ============ */
+function renderWorkOrders(){
+  const f=S.woFilter;let R=S.requests.slice();
+  if(f.status==="open")R=R.filter(isOpen);else if(f.status==="overdue")R=R.filter(isOverdue);else if(f.status==="urgent")R=R.filter(r=>isOpen(r)&&r.priority==="urgent");else if(f.status==="unassigned")R=R.filter(r=>isOpen(r)&&!r.assigneeId);else if(f.status!=="all")R=R.filter(r=>r.status===f.status);
+  if(f.type!=="all")R=R.filter(r=>r.type===f.type);
+  if(f.room!=="all")R=R.filter(r=>r.roomId===f.room);
+  if(f.mine)R=R.filter(r=>r.assigneeId===S.me.id||r.requesterId===S.me.id||approverFor(r)===S.me.id||verifierFor(r)===S.me.id);
+  if(f.q){const q=f.q.toLowerCase();R=R.filter(r=>[r.title,r.number,r.location,roomName(r.roomId),r.category,r.ministry,r.contactName,r.description].join(" ").toLowerCase().includes(q))}
+  const po={urgent:0,high:1,normal:2,low:3};R.sort((a,b)=>(isOpen(b)-isOpen(a))||(po[a.priority]-po[b.priority])||(b.createdAt-a.createdAt));
+  const opt=(v,l,cur)=>'<option value="'+v+'"'+(cur===v?" selected":"")+'>'+l+'</option>';
+  const rows=R.map(r=>'<tr data-open="'+esc(r.id)+'"><td class="mono">'+esc(r.number||"")+'</td><td><b>'+esc(r.title)+'</b><div class="muted" style="font-size:12px">'+esc((TYPES[r.type]||TYPES.problem).label)+" · "+esc(roomName(r.roomId)||r.location||"")+'</div></td><td>'+pill(r.status)+'</td><td>'+prPill(r.priority||"normal")+'</td><td>'+esc(deadlineOf(r)?fmtDate(deadlineOf(r)):"—")+(isOverdue(r)?' <span class="s-bad">overdue</span>':"")+'</td><td>'+esc(r.assigneeId?nm(r.assigneeId):"Unassigned")+'</td></tr>').join("");
+  const roomOpts='<option value="all">All rooms</option>'+S.rooms.map(r=>'<option value="'+esc(r.id)+'"'+(f.room===r.id?" selected":"")+'>'+esc(r.name)+'</option>').join("");
+  $("#v-workorders").innerHTML='<div class="view-head"><div><h2>Work orders</h2><p>Every request across its full lifecycle: submitted → assigned → approved → done → verified → closed.</p></div><a class="btn primary" href="#request">New request</a></div>'+
+   '<div class="panel"><div class="filters"><input id="woQ" type="search" placeholder="Search title, number, room, ministry…" value="'+esc(f.q)+'" aria-label="Search">'+
+   '<select id="woS" aria-label="Status">'+opt("open","All open",f.status)+opt("new","Submitted",f.status)+opt("accepted","Assigned",f.status)+opt("awaiting_approval","Awaiting approval",f.status)+opt("approved","In progress",f.status)+opt("work_completed","Needs verify",f.status)+opt("verified","Verified",f.status)+opt("blocked","Blocked",f.status)+opt("urgent","Urgent",f.status)+opt("overdue","Overdue",f.status)+opt("unassigned","Unassigned",f.status)+opt("declined","Declined",f.status)+opt("all","Everything",f.status)+'</select>'+
+   '<select id="woT" aria-label="Type">'+opt("all","All types",f.type)+opt("problem","Problems",f.type)+opt("event_setup","Event setups",f.type)+opt("reset","Resets",f.type)+opt("service","Support requests",f.type)+'</select>'+
+   '<select id="woR" aria-label="Room">'+roomOpts+'</select>'+
+   '<label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" id="woM"'+(f.mine?" checked":"")+'> Mine</label></div>'+
+   (R.length?'<div class="tbl-wrap"><table><thead><tr><th>No.</th><th>Request</th><th>Status</th><th>Priority</th><th>Deadline</th><th>Assigned</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<div class="empty"><strong>'+(S.requests.length?"Nothing matches":"No requests yet")+'</strong>'+(S.requests.length?"Try “Everything” or clear the search.":'Submit one from <a href="#request">the portal</a>.')+'</div>')+'</div>';
+  const q=$("#woQ");q.oninput=()=>{S.woFilter.q=q.value;clearTimeout(q.t);q.t=setTimeout(()=>{renderWorkOrders();const n=$("#woQ");n.focus();n.setSelectionRange(n.value.length,n.value.length)},250)};
+  $("#woS").onchange=e=>{S.woFilter.status=e.target.value;renderWorkOrders()};$("#woT").onchange=e=>{S.woFilter.type=e.target.value;renderWorkOrders()};$("#woR").onchange=e=>{S.woFilter.room=e.target.value;renderWorkOrders()};$("#woM").onchange=e=>{S.woFilter.mine=e.target.checked;renderWorkOrders()};
+}
+
+/* ============ notifications / inbox ============ */
+async function notify(ids,r,text,note){if(!S.db)return;const uniq=[...new Set(ids.filter(Boolean))].filter(i=>i!==S.me.id);
+  await Promise.all(uniq.map(to=>S.db.collection("notifications").doc().set({to,requestId:r.id,number:r.number||"",title:r.title||"",text,note:note||"",from:S.me.id,createdAt:Date.now(),read:false}).catch(()=>{})))}
+function renderInbox(){const N=S.notifs;
+  $("#v-inbox").innerHTML='<div class="view-head"><div><h2>Inbox</h2><p>Requests routed to you and updates on requests you touched. See the launch notes for email/Teams.</p></div><div class="btn-row"><button class="btn sm" data-act="read-all"'+(N.some(n=>!n.read)?"":" disabled")+'>Mark all read</button><button class="btn sm" data-act="clear-read"'+(N.some(n=>n.read)?"":" disabled")+'>Clear read</button></div></div>'+
+   '<div class="panel">'+(N.length?N.map(n=>'<div class="notif'+(n.read?"":" unread")+'"><span class="dot rd" style="--dot:'+(n.read?"var(--line)":"var(--accent)")+';margin-top:6px"></span><div class="txt"><b>'+esc(n.text)+'</b><div>'+esc(n.number)+' · '+esc(n.title)+'</div>'+(n.note?'<div class="muted">“'+esc(n.note)+'”</div>':"")+'<div class="muted" style="font-size:12px">From '+esc(nm(n.from))+' · '+esc(ago(n.createdAt))+'</div></div><button class="btn sm" data-open-n="'+esc(n.id)+'">Open</button></div>').join(""):'<div class="empty"><strong>You\'re all caught up</strong>Routed requests and status changes appear here.</div>')+'</div>';
+}
+/* ============ detail drawer ============ */
+function showModal(html){$("#modalRoot").innerHTML='<div class="scrim" data-scrim><div class="drawer" role="dialog" aria-modal="true">'+html+'</div></div>';const d=$(".drawer");const fc=d.querySelector("button,a,input,textarea,select");fc&&fc.focus()}
+function closeModal(){S.openId=null;S.openKind="req";$("#modalRoot").innerHTML=""}
+function openDetail(id){S.openId=id;S.openKind="req";renderDetail(true)}
+function photoTag(p){if(p.assetId)return '<a href="/_blob/'+esc(p.assetId)+'" target="_blank" rel="noopener"><img src="/_blob/'+esc(p.assetId)+'" alt="Photo" loading="lazy"></a>';if(p.photoDoc)return '<a data-photodoc="'+esc(p.photoDoc)+'"><img data-photodoc-img="'+esc(p.photoDoc)+'" alt="Photo"></a>';return ""}
+const photoCache={};
+async function hydratePhotos(){document.querySelectorAll("[data-photodoc-img]").forEach(async img=>{const id=img.dataset.photodocImg;if(photoCache[id]){img.src=photoCache[id];return}try{const s=await S.db.doc("photos/"+id).get();if(s.exists){photoCache[id]=s.data().data;img.src=photoCache[id]}}catch(e){}})}
+function renderDetail(first){
+  if(S.openKind==="room")return renderRoomDetail(first);
+  const r=S.requests.find(x=>x.id===S.openId);if(!r){if(first)toast("That request isn't available.");closeModal();return}
+  const prevScroll=$(".drawer")?$(".drawer").scrollTop:0;const keep={};document.querySelectorAll(".drawer [id]").forEach(el=>{if("value"in el)keep[el.id]=el.value});const focused=document.activeElement&&document.activeElement.id;
+  const order=["new","accepted","awaiting_approval","approved","work_completed","verified"];const idx=order.indexOf(r.status);
+  const stepLabels=["Submitted","Assigned","Approved","Done","Verified"];const stepMap=[0,1,3,4,5];
+  const steps=r.status==="declined"?'<div class="pill s-gray">Declined</div>':r.status==="blocked"?'<div class="pill s-bad">Blocked</div>':'<div class="steps">'+stepLabels.map((l,i)=>{const reached=idx>=stepMap[i];const cur=(i===0&&r.status==="new")||(i===1&&r.status==="accepted")||(i===2&&r.status==="awaiting_approval")||(i===3&&(r.status==="approved"))||(i===4&&r.status==="work_completed");return '<div class="step'+(reached?" done":"")+(cur?" cur":"")+'">'+l+'</div>'}).join("")+'</div>';
+  const kv=[["Status",pill(r.status)+" "+prPill(r.priority||"normal")],["Type",esc((TYPES[r.type]||TYPES.problem).label)+(r.type==="problem"?" · "+esc(r.category):"")],["Room",esc(roomName(r.roomId)||"—")+(r.location?" · "+esc(r.location):"")]];
+  if(r.type==="event_setup")kv.push(["Event",esc(fmtDate(r.eventDate))+(r.startTime?" · setup by "+esc(fmtTime(r.startTime)):"")+(r.attendance?" · "+esc(r.attendance)+" people":"")]);
+  kv.push(["Deadline",esc(deadlineOf(r)?fmtDate(deadlineOf(r)):"none")+(isOverdue(r)?" · OVERDUE":"")]);
+  kv.push(["Assigned to",esc(r.assigneeId?nm(r.assigneeId):"Unassigned")],["Verifier",esc(nm(verifierFor(r)))]);
+  if(r.type==="problem"||r.estCost||r.approvedAmount||r.actualCost)kv.push(["Cost",(r.estCost?"est $"+esc(r.estCost):"")+(r.approvedAmount?" · approved $"+esc(r.approvedAmount):"")+(r.actualCost?" · actual $"+esc(r.actualCost):"")||"—"]);
+  kv.push(["Requested by",esc(r.contactName||nm(r.requesterId))+(r.ministry?" · "+esc(r.ministry):"")+(r.phone?" · "+esc(r.phone):"")],["Submitted",esc(fmtDT(r.createdAt))]);
+  let pcoLink="";if(r.pcoEventId){const e=allPcoEvents().find(x=>x.id===r.pcoEventId);pcoLink='<dt>Ministry event</dt><dd>'+(e?esc(e.n)+(e.u?' · <a href="'+esc(e.u)+'" target="_blank" rel="noopener">Church Center</a>':""):"Linked #"+esc(r.pcoEventId))+'</dd>'}
+  let resetLink="";if(r.resetId){const rs=S.requests.find(x=>x.id===r.resetId);if(rs)resetLink='<dt>Post-event reset</dt><dd><a data-open="'+esc(rs.id)+'">'+esc(rs.number)+' — '+esc(STATUS[rs.status])+'</a></dd>'}
+  if(r.parentId){const pr=S.requests.find(x=>x.id===r.parentId);if(pr)resetLink+='<dt>From event</dt><dd><a data-open="'+esc(pr.id)+'">'+esc(pr.number)+' — '+esc(pr.title)+'</a></dd>'}
+  const can=canAct(r);const me=S.me.id;
+  // checklist
+  const cl=r.checklist||[];const clHtml=cl.length?'<div><div class="label" style="margin-bottom:4px">Checklist</div>'+cl.map((c,i)=>'<label class="check'+(c.done?" done":"")+'"><input type="checkbox" data-check="'+i+'"'+(c.done?" checked":"")+(can&&isOpen(r)?"":" disabled")+'><span class="ct">'+esc(c.t)+'</span></label>').join("")+'</div>':"";
+  const assignOpts='<option value="">Unassigned</option>'+peopleOptions(r.assigneeId);
+  let act="";
+  if(can&&isOpen(r)){
+    if(r.status==="new"){act='<div class="actions"><h3>Accept & assign</h3><div class="fgrid"><div class="f"><label for="aWho">Assign to</label><select id="aWho">'+assignOpts+'</select></div><div class="f"><label for="aDate">'+(r.type==="reset"?"Reset by":r.type==="event_setup"?"Setup by":"Schedule for")+'</label><input id="aDate" type="date" value="'+esc(deadlineOf(r)||"")+'"></div>'+(r.type==="problem"?'<div class="f"><label for="aCost">Estimated cost ($)</label><input id="aCost" type="number" min="0"><span class="hint">$'+threshold()+'+ needs '+esc(nm(approverFor(r)))+'\'s approval.</span></div>':"")+'</div><div class="f full"><label for="aNote">Note to requester (optional)</label><input id="aNote" maxlength="400"></div><div class="btn-row"><button class="btn primary" data-do="accept">Accept</button><button class="btn" data-do="block">Block…</button><button class="btn danger" data-do="decline">Decline…</button></div></div>'}
+    else if(r.status==="awaiting_approval"){const isAp=me===approverFor(r)||S.canEdit||me===cfg().directorId;act='<div class="actions"><h3>Approval from '+esc(nm(approverFor(r)))+'</h3>'+(isAp?'<div class="fgrid"><div class="f"><label for="aAmt">Approved amount ($)</label><input id="aAmt" type="number" min="0" value="'+esc(r.estCost||"")+'"></div></div><div class="f"><label for="aNote">Note (optional)</label><input id="aNote" maxlength="400"></div><div class="btn-row"><button class="btn primary" data-do="approve">Approve</button><button class="btn danger" data-do="decline">Decline…</button></div>':'<p class="muted" style="margin:0">Waiting on the approver.</p>')+'</div>'}
+    else if(r.status==="approved"||r.status==="accepted"||r.status==="blocked"){act='<div class="actions"><h3>'+(r.status==="blocked"?"Blocked":"In progress")+'</h3>'+(r.status==="blocked"?'<div class="btn-row"><button class="btn primary" data-do="unblock">Unblock</button></div>':'<div class="f"><label for="cNote">What was done</label><textarea id="cNote" maxlength="2000" placeholder="'+(r.type==="reset"?"Room returned to standard, matches photo.":"Replaced cartridge, tested, no leak.")+'"></textarea></div><div class="fgrid"><div class="f"><label for="cCost">Actual cost ($, optional)</label><input id="cCost" type="number" min="0"></div><div class="f"><label for="cPhotos">Completion / after photos</label><input id="cPhotos" type="file" accept="image/*" multiple></div></div><div class="btn-row"><button class="btn primary" data-do="complete">Mark done — send for verification</button><button class="btn" data-do="block">Block…</button></div>')+'</div>'}
+    else if(r.status==="work_completed"){const cv=canVerify(r);act='<div class="actions"><h3>Verify readiness</h3><p class="muted" style="margin:0 0 4px">Completion isn\'t "ready" until verified. '+(r.type==="reset"||r.type==="event_setup"?"Confirm the room matches its required configuration.":"Confirm the fix is complete and safe.")+'</p>'+(cv?'<div class="f"><label for="vNote">Verification note (optional)</label><input id="vNote" maxlength="400"></div><div class="btn-row"><button class="btn primary" data-do="verify">Verify & close</button><button class="btn" data-do="reject">Send back…</button></div>':'<p class="muted" style="margin:0">Waiting on '+esc(nm(verifierFor(r)))+' to verify.</p>')+'</div>'}
+    act+='<div class="actions"><div class="fgrid"><div class="f"><label for="xWho">Reassign</label><select id="xWho">'+assignOpts+'</select></div><div class="f"><label for="xDate">Reschedule</label><input id="xDate" type="date" value="'+esc(deadlineOf(r)||"")+'"></div></div><div class="btn-row"><button class="btn sm" data-do="reassign">Save assignment</button></div></div>';
+  }
+  if(me&&r.status==="verified"&&(can||me===r.requesterId))act+='<div class="btn-row"><button class="btn sm" data-do="reopen">Reopen</button></div>';
+  const participants=[...new Set([r.requesterId,r.assigneeId,approverFor(r),verifierFor(r),cfg().directorId].filter(Boolean))];
+  const emails=participants.map(id=>{const p=S.profiles[id];return p&&p.email?'<div class="picked"><span>'+esc(p.name||"Someone")+'</span><span class="mono muted">'+esc(p.email)+'</span><button class="btn sm" data-copy="'+esc(p.email)+'">Copy</button></div>':""}).join("");
+  showModal('<div class="d-head"><div><span class="mono muted">'+esc(r.number)+'</span><h2>'+esc(r.title)+'</h2></div><button class="btn sm" data-close>Close</button></div>'+steps+
+   '<dl class="kv">'+kv.map(([k,v])=>'<dt>'+k+'</dt><dd>'+v+'</dd>').join("")+pcoLink+resetLink+'</dl>'+
+   (r.description?'<div><div class="label">Description</div><p style="margin:4px 0 0;white-space:pre-wrap">'+esc(r.description)+'</p></div>':"")+
+   (r.setupNeeds?'<div><div class="label">Setup needs</div><p style="margin:4px 0 0;white-space:pre-wrap">'+esc(r.setupNeeds)+'</p></div>':"")+
+   (r.type==="reset"&&room(r.roomId)&&room(r.roomId).standardConfig?'<div class="routing-note"><b>Standard for '+esc(roomName(r.roomId))+':</b> '+esc(room(r.roomId).standardConfig)+roomStdPhoto(room(r.roomId))+'</div>':"")+
+   clHtml+
+   ((r.photos||[]).length?'<div><div class="label">Photos</div><div class="photos" style="margin-top:6px">'+r.photos.map(photoTag).join("")+'</div></div>':"")+
+   ((r.afterPhotos||[]).length?'<div><div class="label">Completion photos</div><div class="photos" style="margin-top:6px">'+r.afterPhotos.map(photoTag).join("")+'</div></div>':"")+
+   (r.completionNote?'<div><div class="label">Completion notes</div><p style="margin:4px 0 0;white-space:pre-wrap">'+esc(r.completionNote)+'</p></div>':"")+
+   (r.verifyNote?'<div><div class="label">Verification</div><p style="margin:4px 0 0;white-space:pre-wrap">'+esc(r.verifyNote)+' — '+esc(nm(r.verifiedBy))+'</p></div>':"")+
+   act+
+   (me?'<div class="f"><label for="mNote">Add a comment</label><div style="display:flex;gap:8px"><input id="mNote" maxlength="600" placeholder="Parts ordered, arriving Thursday"><button class="btn" data-do="comment">Post</button></div></div>':"")+
+   '<div><div class="label" style="margin-bottom:6px">History</div><div class="hist">'+(r.history||[]).slice().reverse().map(h=>'<div><div><b>'+esc(h.action)+'</b> · '+esc(nm(h.by))+'</div>'+(h.note?'<div>'+esc(h.note)+'</div>':"")+'<div class="h-at">'+esc(fmtDT(h.at))+'</div></div>').join("")+'</div></div>'+
+   (emails?'<div><div class="label">People on this request</div><p class="muted" style="margin:4px 0 6px;font-size:12px">In-app notifications reach each person\'s Inbox. Copy an address to follow up by email.</p>'+emails+'</div>':""));
+  Object.entries(keep).forEach(([k,v])=>{const el=document.getElementById(k);if(el&&el.type!=="file")el.value=v});
+  if(!first){const d=$(".drawer");if(d)d.scrollTop=prevScroll;if(focused){const el=document.getElementById(focused);el&&el.focus({preventScroll:true})}}
+  hydratePhotos();
+}
+function roomStdPhoto(rm){if(!rm||!rm.standardPhoto)return"";const p=rm.standardPhoto;const src=p.assetId?"/_blob/"+p.assetId:"";return src?'<div class="photos" style="margin-top:8px;grid-template-columns:repeat(auto-fill,minmax(130px,1fr))"><a href="'+esc(src)+'" target="_blank" rel="noopener"><img src="'+esc(src)+'" alt="Standard"></a></div>':(p.photoDoc?'<div class="photos" style="margin-top:8px"><a data-photodoc="'+esc(p.photoDoc)+'"><img data-photodoc-img="'+esc(p.photoDoc)+'" alt="Standard"></a></div>':"")}
+function peopleIds(){const c=cfg();return[...new Set([c.directorId,c.eventCoordinatorId,c.eventApproverId,c.maintenanceApproverId,c.resetOwnerId,...Object.values(c.categoryAssignees||{}),...Object.values(c.serviceOwners||{}),...S.rooms.map(r=>r.ownerId),...(c.team||[])].filter(Boolean))]}
+function peopleOptions(sel){const ids=peopleIds();if(sel&&!ids.includes(sel))ids.push(sel);return ids.map(i=>'<option value="'+esc(i)+'"'+(i===sel?" selected":"")+'>'+esc(nm(i))+'</option>').join("")}
+
+/* ============ lifecycle actions ============ */
+async function doAction(kind){
+  const r=S.requests.find(x=>x.id===S.openId);if(!r||!S.db)return;
+  const v=id=>{const el=document.getElementById(id);return el?el.value.trim():""};
+  const ref=S.db.doc("requests/"+r.id);const hist=(r.history||[]).slice();const now=Date.now();
+  if(kind==="accept"){const who=v("aWho")||S.me.id;const cost=v("aCost");const need=needsApproval(r,cost);const note=v("aNote");
+    const upd={assigneeId:who,deadline:v("aDate")||r.deadline,scheduledFor:v("aDate"),estCost:cost,status:need?"awaiting_approval":"approved",acceptedAt:now,acceptedBy:S.me.id};
+    hist.push({at:now,by:S.me.id,action:need?"Accepted, sent for approval":"Accepted & approved",note});
+    await ref.update(Object.assign(upd,{history:hist,updatedAt:now}));
+    await notify([r.requesterId],r,"Your request was accepted"+(need?" and sent for approval":" and scheduled"),note);
+    if(need)await notify([approverFor(r)],r,"A request needs your approval",note);else if(who!==S.me.id)await notify([who],r,"Work assigned to you",note);
+    toast(need?"Sent to "+nm(approverFor(r))+" for approval.":"Accepted.");}
+  else if(kind==="approve"){const amt=v("aAmt");const note=v("aNote");hist.push({at:now,by:S.me.id,action:"Approved"+(amt?" ($"+amt+")":""),note});
+    await ref.update({status:"approved",approvedBy:S.me.id,approvedAmount:amt,approvedAt:now,history:hist,updatedAt:now});
+    await notify([r.requesterId,r.assigneeId,cfg().ccDirector!==false?cfg().directorId:null],r,"Request approved",note);toast("Approved.");}
+  else if(kind==="decline"){showInline('Decline request','dNote','Reason (sent to requester)','decline-confirm','Decline');return}
+  else if(kind==="decline-confirm"){const note=v("dNote");if(!note){toast("Add a reason.");return}hist.push({at:now,by:S.me.id,action:"Declined",note});
+    await ref.update({status:"declined",history:hist,updatedAt:now});await notify([r.requesterId,r.assigneeId],r,"Request declined",note);toast("Declined.");}
+  else if(kind==="block"){showInline('Mark blocked','bNote','What is blocking it?','block-confirm','Mark blocked');return}
+  else if(kind==="block-confirm"){const note=v("bNote");hist.push({at:now,by:S.me.id,action:"Blocked",note});await ref.update({status:"blocked",history:hist,updatedAt:now});await notify([r.requesterId,cfg().directorId],r,"Request blocked",note);toast("Marked blocked. Leadership notified.");}
+  else if(kind==="unblock"){hist.push({at:now,by:S.me.id,action:"Unblocked"});await ref.update({status:"approved",history:hist,updatedAt:now});toast("Unblocked.");}
+  else if(kind==="complete"){const note=v("cNote");if(!note){toast("Add a short note about what was done.");return}
+    const fi=document.getElementById("cPhotos");let after=[];if(fi&&fi.files.length){toast("Uploading photos…");const list=[];for(const f of[...fi.files].slice(0,6)){try{const b=await shrink(f,1600,.82);list.push({blob:b})}catch(e){}}after=await storePhotos(list)}
+    const skipV=!requireVerify(r);hist.push({at:now,by:S.me.id,action:skipV?"Completed":"Completed — sent for verification",note});
+    await ref.update({status:skipV?"verified":"work_completed",completionNote:note,actualCost:v("cCost"),afterPhotos:(r.afterPhotos||[]).concat(after),completedAt:now,completedBy:S.me.id,verifiedAt:skipV?now:null,history:hist,updatedAt:now});
+    if(skipV){await afterVerify(r);await notify([r.requesterId],r,"Request completed",note)}else await notify([verifierFor(r),r.requesterId],r,"Work done — needs verification",note);
+    toast(skipV?"Completed.":"Sent to "+nm(verifierFor(r))+" to verify.");}
+  else if(kind==="verify"){const note=v("vNote");hist.push({at:now,by:S.me.id,action:"Verified & closed",note});
+    await ref.update({status:"verified",verifiedBy:S.me.id,verifyNote:note,verifiedAt:now,history:hist,updatedAt:now});
+    await afterVerify(Object.assign({},r,{status:"verified"}));await notify([r.requesterId,r.assigneeId],r,"Verified — ready",note);toast("Verified & closed.");}
+  else if(kind==="reject"){showInline('Send back','rjNote','What still needs doing?','reject-confirm','Send back');return}
+  else if(kind==="reject-confirm"){const note=v("rjNote");if(!note){toast("Add what's needed.");return}hist.push({at:now,by:S.me.id,action:"Sent back — not verified",note});await ref.update({status:"approved",history:hist,updatedAt:now});await notify([r.assigneeId],r,"Sent back — needs more work",note);toast("Sent back to "+nm(r.assigneeId)+".");}
+  else if(kind==="reassign"){const who=v("xWho");const d=v("xDate");hist.push({at:now,by:S.me.id,action:"Assignment updated",note:(who?"Assigned "+nm(who):"Unassigned")+(d?" · "+fmtDate(d):"")});
+    await ref.update({assigneeId:who||null,deadline:d||r.deadline,scheduledFor:d,history:hist,updatedAt:now});if(who&&who!==r.assigneeId)await notify([who],r,"Work assigned to you");toast("Saved.");}
+  else if(kind==="reopen"){hist.push({at:now,by:S.me.id,action:"Reopened"});await ref.update({status:"approved",verifiedAt:null,history:hist,updatedAt:now});await notify([r.assigneeId],r,"Request reopened");toast("Reopened.");}
+  else if(kind==="comment"){const note=v("mNote");if(!note)return;hist.push({at:now,by:S.me.id,action:"Comment",note});await ref.update({history:hist,updatedAt:now});await notify([r.requesterId,r.assigneeId,approverFor(r)],r,"New comment",note);const el=document.getElementById("mNote");if(el)el.value="";toast("Posted.");}
+}
+// after a request is verified: if event setup that changes config, auto-create the reset; mark room ready
+async function afterVerify(r){
+  if(r.roomId){try{await S.db.doc("rooms/"+r.roomId).update({lastReadyAt:Date.now(),lastReadyBy:S.me.id,readiness:"ready"}).catch(()=>{})}catch(e){}}
+  if(r.type==="event_setup"&&r.changesConfig&&!r.resetId){await createReset(r)}
+}
+async function createReset(parent){
+  const rm=room(parent.roomId);
+  // deadline = next use of the room after this event, capped at Sunday if required
+  const after=parent.eventDate||todayYmd();
+  const uses=roomUsesOn(parent.roomId,ymd(addDays(parseYmd(after),1)));
+  let deadline=uses[0]?uses[0].date:ymd(addDays(parseYmd(after),1));
+  if(rm&&rm.sundayRequired){const sun=nextSunday(parseYmd(after));if(sun<deadline)deadline=sun}
+  const now=Date.now();
+  const reset={number:woNum("RS"),type:"reset",title:"Reset: "+(rm?rm.name:parent.title),description:"Return "+(rm?rm.name:"the room")+" to standard after "+parent.title+".",
+    roomId:parent.roomId,location:parent.location||"",category:"Custodial",priority:"high",deadline,resetReason:"Return to standard after an event",
+    parentId:parent.id,photos:[],checklist:defaultChecklist("reset",parent.roomId),status:"new",requesterId:S.me.id,contactName:"Auto-created",ministry:"Facilities",
+    createdAt:now,updatedAt:now,history:[{at:now,by:S.me.id,action:"Auto-created from event "+parent.number}]};
+  reset.assigneeId=acceptorFor(reset);reset.verifierId=verifierFor(reset);
+  try{const ref=await S.db.collection("requests").add(reset);await S.db.doc("requests/"+parent.id).update({resetId:ref.id}).catch(()=>{});
+    await notify([reset.assigneeId,cfg().directorId],Object.assign({id:ref.id},reset),"Post-event reset created — due "+fmtDate(deadline));toast("Reset "+reset.number+" created, due "+fmtDate(deadline)+".")}catch(e){toast("Couldn't auto-create the reset.")}
+}
+function showInline(title,fid,label,confirmDo,btn){const a=document.querySelector(".drawer .actions");if(!a)return;a.innerHTML='<h3>'+title+'</h3><div class="f"><label for="'+fid+'">'+label+'</label><textarea id="'+fid+'" maxlength="600"></textarea></div><div class="btn-row"><button class="btn '+(btn==="Decline"?"danger":"primary")+'" data-do="'+confirmDo+'">'+btn+'</button><button class="btn" data-rerender>Cancel</button></div>';const el=$("#"+fid);el&&el.focus()}
+async function toggleCheck(i){const r=S.requests.find(x=>x.id===S.openId);if(!r||!canAct(r))return;const cl=(r.checklist||[]).map(c=>Object.assign({},c));if(!cl[i])return;cl[i].done=!cl[i].done;try{await S.db.doc("requests/"+r.id).update({checklist:cl,updatedAt:Date.now()})}catch(e){toast("Couldn't save checklist.")}}
+/* ============ rooms ============ */
+function renderRooms(){
+  const ed=S.roomEditing;const canE=S.canEdit;
+  const form=ed?roomForm(ed):"";
+  const cards=S.rooms.map(rm=>{const r=roomReadiness(rm);return '<button class="roomcard" style="--stripe:'+({ready:"var(--ready)",wip:"var(--wip)",bad:"var(--bad)",gray:"var(--gray)"}[r.state])+'" data-open-room="'+esc(rm.id)+'"><div style="display:flex;justify-content:space-between;gap:8px;align-items:start"><b>'+esc(rm.name)+'</b><span class="chipstat '+r.state+'">'+({ready:"Ready",wip:"In progress",bad:"Not ready",gray:"Idle"}[r.state])+'</span></div><div class="muted" style="font-size:12.5px">'+esc(rm.building||"")+(rm.capacity?" · seats "+esc(rm.capacity):"")+(rm.sundayRequired?" · Sunday":"")+'</div><div class="sub" style="font-size:12px;color:var(--ink-3)">'+esc(r.reason)+' · next: '+(r.next?esc(fmtDate(r.next.date)):"—")+'</div></button>'}).join("");
+  $("#v-rooms").innerHTML='<div class="view-head"><div><h2>Room standards</h2><p>The shared reference for every space: standard layout, photo, capacity, owner and current readiness. '+(canE?"Editable by hub editors.":"Only hub editors can change these.")+'</p></div>'+(canE?'<div class="btn-row">'+(!S.rooms.length?'<button class="btn" data-rooms-starter>Add starter rooms</button>':"")+'<button class="btn primary" data-room-new>Add room</button></div>':"")+'</div>'+form+
+   (S.rooms.length?'<div class="roomgrid">'+cards+'</div>':'<div class="panel"><div class="empty"><strong>No rooms yet</strong>Add your campus spaces to turn on readiness tracking, resets and the Sunday dashboard.'+(canE?'<div style="margin-top:12px" class="btn-row" style="justify-content:center"><button class="btn" data-rooms-starter>Add 9 starter rooms</button><button class="btn primary" data-room-new>Add a room</button></div>':"")+'</div></div>');
+}
+function roomForm(ed){const p=ed==="new"?{}:room(ed)||{};
+  return '<div class="panel" style="margin-bottom:16px"><div class="panel-h"><h3>'+(ed==="new"?"Add a room":"Edit "+esc(p.name||"room"))+'</h3></div><form id="roomForm" style="padding:14px" class="form"><div class="fgrid">'+
+   '<div class="f"><label for="rmName">Room name</label><input id="rmName" required maxlength="80" value="'+esc(p.name||"")+'"></div>'+
+   '<div class="f"><label for="rmBld">Building</label><input id="rmBld" maxlength="60" value="'+esc(p.building||"")+'"></div>'+
+   '<div class="f"><label for="rmMin">Primary ministry / dept</label><input id="rmMin" maxlength="80" value="'+esc(p.ministry||"")+'"></div>'+
+   '<div class="f"><label for="rmCap">Seating capacity</label><input id="rmCap" type="number" min="0" value="'+esc(p.capacity||"")+'"></div>'+
+   '<div class="f"><label for="rmTables">Tables available</label><input id="rmTables" maxlength="60" value="'+esc(p.tables||"")+'"></div>'+
+   '<div class="f"><label for="rmChairs">Chairs available</label><input id="rmChairs" maxlength="60" value="'+esc(p.chairs||"")+'"></div>'+
+   '<div class="f full"><label for="rmStd">Standard configuration</label><textarea id="rmStd" maxlength="1000">'+esc(p.standardConfig||"")+'</textarea></div>'+
+   '<div class="f full"><label for="rmInstr">Setup / teardown instructions</label><textarea id="rmInstr" maxlength="1500">'+esc(p.instructions||"")+'</textarea></div>'+
+   '<div class="f"><label for="rmTech">Technology / equipment</label><input id="rmTech" maxlength="200" value="'+esc(p.tech||"")+'"></div>'+
+   '<div class="f"><label for="rmClean">Cleaning requirements</label><input id="rmClean" maxlength="200" value="'+esc(p.cleaning||"")+'"></div>'+
+   '<div class="f full"><label for="rmSafety">Safety considerations</label><input id="rmSafety" maxlength="200" value="'+esc(p.safety||"")+'"></div>'+
+   '<div class="f"><label for="rmOwner">Room owner</label>'+(S.canEdit?'<div class="picker"><input id="pk-room" data-picker="room" placeholder="Search people…" autocomplete="off" value="'+esc(p.ownerId?nm(p.ownerId):"")+'"><div class="res" hidden></div></div><div class="picked" id="pkv-room">'+(roomOwnerPick(p)?'<b>'+esc(nm(roomOwnerPick(p)))+'</b> <button type="button" class="btn sm" data-unpick="room">Clear</button>':'<span class="muted">Not set</span>')+'</div>':"")+'</div>'+
+   '<div class="f"><label style="display:flex;gap:8px;align-items:center;margin-top:24px"><input type="checkbox" id="rmSun"'+(p.sundayRequired?" checked":"")+'> Required for Sunday services</label></div>'+
+   '<div class="f full"><label for="rmPhoto">Standard setup photo</label><input id="rmPhoto" type="file" accept="image/*">'+(p.standardPhoto?'<span class="hint">A photo is set. Choosing a new one replaces it.</span>':"")+'</div>'+
+   '</div><div class="btn-row" style="margin-top:4px"><button class="btn primary" type="submit">Save room</button><button class="btn" type="button" data-room-cancel>Cancel</button>'+(ed!=="new"?'<span style="flex:1"></span><button class="btn danger" type="button" data-room-del="'+esc(ed)+'">Delete</button>':"")+'</div></form></div>';
+}
+function roomOwnerPick(p){if("room" in pickerState)return pickerState.room;return p.ownerId||null}
+async function saveRoom(e){e.preventDefault();const g=id=>{const el=document.getElementById(id);return el?el.value.trim():""};if(!g("rmName"))return;
+  const ed=S.roomEditing;const prev=ed==="new"?{}:room(ed)||{};
+  const data={name:g("rmName"),building:g("rmBld"),ministry:g("rmMin"),capacity:g("rmCap"),tables:g("rmTables"),chairs:g("rmChairs"),standardConfig:g("rmStd"),instructions:g("rmInstr"),tech:g("rmTech"),cleaning:g("rmClean"),safety:g("rmSafety"),ownerId:roomOwnerPick(prev)||null,sundayRequired:document.getElementById("rmSun").checked,updatedAt:Date.now()};
+  const fi=document.getElementById("rmPhoto");if(fi&&fi.files[0]){toast("Uploading photo…");try{const b=await shrink(fi.files[0],1600,.82);const st=await storePhotos([{blob:b}]);if(st[0])data.standardPhoto=st[0]}catch(e){}}else if(prev.standardPhoto)data.standardPhoto=prev.standardPhoto;
+  try{if(ed==="new"){data.createdAt=Date.now();await S.db.collection("rooms").add(data)}else await S.db.doc("rooms/"+ed).update(data);
+    S.roomEditing=null;delete pickerState.room;renderRooms();toast("Room saved.")}catch(err){toast(err&&err.code==="invalid_argument"?"Only hub editors can change rooms.":"Couldn't save the room.")}}
+function openRoomDetail(id){S.openId=id;S.openKind="room";renderDetail(true)}
+function renderRoomDetail(first){const rm=room(S.openId);if(!rm){closeModal();return}const r=roomReadiness(rm);
+  const issues=S.requests.filter(x=>x.roomId===rm.id&&isOpen(x));
+  const upcoming=roomUsesOn(rm.id,todayYmd()).slice(0,6);
+  showModal('<div class="d-head"><div><span class="label">Room standard</span><h2>'+esc(rm.name)+'</h2></div><button class="btn sm" data-close>Close</button></div>'+
+   '<div><span class="chipstat '+r.state+'">'+({ready:"Ready",wip:"In progress",bad:"Not ready",gray:"Idle"}[r.state])+'</span> <span class="muted">'+esc(r.reason)+'</span></div>'+
+   roomStdPhoto(rm)+
+   '<dl class="kv"><dt>Building</dt><dd>'+esc(rm.building||"—")+'</dd><dt>Ministry</dt><dd>'+esc(rm.ministry||"—")+'</dd><dt>Capacity</dt><dd>'+esc(rm.capacity||"—")+'</dd><dt>Tables / chairs</dt><dd>'+esc(rm.tables||"—")+" / "+esc(rm.chairs||"—")+'</dd><dt>Owner</dt><dd>'+esc(rm.ownerId?nm(rm.ownerId):"—")+'</dd><dt>Sunday</dt><dd>'+(rm.sundayRequired?"Required":"Not required")+'</dd><dt>Next use</dt><dd>'+(r.next?esc(r.next.label)+" · "+esc(fmtDate(r.next.date)):"none")+'</dd><dt>Last verified</dt><dd>'+(rm.lastReadyAt?esc(fmtDT(rm.lastReadyAt)):"never")+'</dd></dl>'+
+   (rm.standardConfig?'<div><div class="label">Standard configuration</div><p style="margin:4px 0 0;white-space:pre-wrap">'+esc(rm.standardConfig)+'</p></div>':"")+
+   (rm.instructions?'<div><div class="label">Instructions</div><p style="margin:4px 0 0;white-space:pre-wrap">'+esc(rm.instructions)+'</p></div>':"")+
+   (rm.tech||rm.cleaning||rm.safety?'<dl class="kv">'+(rm.tech?'<dt>Technology</dt><dd>'+esc(rm.tech)+'</dd>':"")+(rm.cleaning?'<dt>Cleaning</dt><dd>'+esc(rm.cleaning)+'</dd>':"")+(rm.safety?'<dt>Safety</dt><dd>'+esc(rm.safety)+'</dd>':"")+'</dl>':"")+
+   '<div><div class="label" style="margin-bottom:4px">Open work in this room</div>'+(issues.length?issues.map(x=>'<button class="row" data-open="'+esc(x.id)+'"><span class="dot" style="--dot:'+stripe(x)+'"></span><span>'+esc(x.title)+'<div class="sub">'+esc(x.number)+'</div></span>'+pill(x.status)+'</button>').join(""):'<p class="muted" style="margin:4px 0">None — room is clear.</p>')+'</div>'+
+   '<div><div class="label" style="margin-bottom:4px">Upcoming use</div>'+(upcoming.length?upcoming.map(u=>'<div class="row" style="cursor:default"><span class="dot" style="--dot:'+(u.kind==="ministry"?"var(--c-ministry)":"var(--c-event)")+'"></span><span>'+esc(u.label)+'<div class="sub">'+esc(fmtDate(u.date))+'</div></span></div>').join(""):'<p class="muted" style="margin:4px 0">Nothing scheduled.</p>')+'</div>'+
+   '<div class="btn-row"><a class="btn" href="#request" data-close data-prefill-room="'+esc(rm.id)+'" data-prefill-type="reset">Request reset</a>'+(S.canEdit?'<button class="btn" data-room-edit="'+esc(rm.id)+'" data-close>Edit standard</button>':"")+'</div>');
+  hydratePhotos();
+}
+/* ============ inspections ============ */
+let inspRun=null; // {template, items:[{t,done}], roomScope}
+function renderInspections(){
+  const recent=S.inspections.slice(0,12);
+  const run=inspRun?'<div class="panel" style="margin-bottom:16px"><div class="panel-h"><h3>'+esc(INSPECTION_TEMPLATES[inspRun.template].name)+'</h3><span class="muted">'+inspRun.items.filter(i=>i.done).length+'/'+inspRun.items.length+'</span></div><div style="padding:14px"><div class="f" style="margin-bottom:10px"><label for="iArea">Area / scope (optional)</label><input id="iArea" value="'+esc(inspRun.area||"")+'" placeholder="Whole campus, Kids wing…"></div>'+inspRun.items.map((it,i)=>'<label class="check'+(it.done?" done":"")+'"><input type="checkbox" data-insp-check="'+i+'"'+(it.done?" checked":"")+'><span class="ct">'+esc(it.t)+(it.done?"":' <button type="button" class="btn sm" data-insp-fix="'+i+'" style="margin-left:6px">Create fix</button>')+'</span></label>').join("")+'<div class="f" style="margin-top:10px"><label for="iNotes">Notes</label><textarea id="iNotes" maxlength="1500">'+esc(inspRun.notes||"")+'</textarea></div><div class="btn-row" style="margin-top:10px"><button class="btn primary" data-insp-save>Save inspection</button><button class="btn" data-insp-cancel>Cancel</button></div></div></div>':"";
+  $("#v-inspections").innerHTML='<div class="view-head"><div><h2>Inspections & checkpoints</h2><p>Reusable checklists for daily readiness, the Thursday Sunday-prep checkpoint and Sunday final verification. A failed item becomes an assigned work order.</p></div></div>'+
+   (inspRun?run:'<div class="seg" style="margin-bottom:16px">'+Object.entries(INSPECTION_TEMPLATES).map(([k,t])=>'<label style="cursor:pointer"><span><b>'+esc(t.name)+'</b><span>'+t.items.length+' checks</span><div class="btn-row" style="margin-top:8px"><button class="btn sm primary" data-insp-start="'+k+'">Start</button></div></span></label>').join("")+'</div>')+
+   '<div class="panel"><div class="panel-h"><h3>Recent inspections</h3></div><div class="panel-b">'+(recent.length?recent.map(i=>{const pass=i.items.filter(x=>x.done).length;const fail=i.items.length-pass;return '<div class="row" style="cursor:default"><span class="dot rd" style="--dot:'+(fail?"var(--wip)":"var(--ready)")+'"></span><span><b>'+esc((INSPECTION_TEMPLATES[i.template]||{}).name||i.template)+'</b>'+(i.area?" · "+esc(i.area):"")+'<div class="sub">'+esc(nm(i.byId))+" · "+esc(ago(i.createdAt))+'</div></span><span class="chipstat '+(fail?"wip":"ready")+'">'+pass+'/'+i.items.length+'</span></div>'}).join(""):'<div class="empty">No inspections run yet.</div>')+'</div></div>';
+}
+async function saveInspection(){if(!inspRun||!S.db)return;const area=($("#iArea")||{}).value||"";const notes=($("#iNotes")||{}).value||"";
+  try{await S.db.collection("inspections").add({template:inspRun.template,items:inspRun.items,area:area.trim(),notes:notes.trim(),byId:S.me.id,createdAt:Date.now()});
+    const fails=inspRun.items.filter(i=>!i.done);inspRun=null;renderInspections();toast("Inspection saved."+(fails.length?" "+fails.length+" item(s) unchecked — create fixes from the list.":""))}catch(e){toast("Couldn't save.")}}
+async function inspFix(i){if(!inspRun)return;const it=inspRun.items[i];if(!it||!S.db)return;const now=Date.now();
+  const r={number:woNum("WO"),type:"problem",title:"Fix: "+it.t,description:"Flagged during "+INSPECTION_TEMPLATES[inspRun.template].name+((($("#iArea")||{}).value)?" ("+$("#iArea").value+")":"")+".",roomId:"",location:($("#iArea")||{}).value||"",category:"Custodial",priority:inspRun.template==="sunday"?"urgent":"high",deadline:inspRun.template==="daily"?todayYmd():thisOrNextSunday(),photos:[],checklist:[],status:"new",requesterId:S.me.id,contactName:S.me.name||"",ministry:"Facilities",createdAt:now,updatedAt:now,source:"inspection",history:[{at:now,by:S.me.id,action:"Created from inspection"}]};
+  r.assigneeId=acceptorFor(r);r.verifierId=verifierFor(r);
+  try{const ref=await S.db.collection("requests").add(r);await notify([r.assigneeId,cfg().directorId],Object.assign({id:ref.id},r),"Inspection fix needs you");toast("Work order "+r.number+" created.")}catch(e){toast("Couldn't create the fix.")}}
+
+/* ============ preventive ============ */
+function pmNext(p){if(!p.lastDone)return p.startDate||todayYmd();return ymd(addDays(parseYmd(p.lastDone),Number(p.frequencyDays)||30))}
+function pmState(p){const n=pmNext(p),t=todayYmd();if(n<t)return"overdue";if(n<=ymd(addDays(new Date(),14)))return"due";return"ok"}
+function renderPM(){
+  const P=S.pm.slice().sort((a,b)=>pmNext(a).localeCompare(pmNext(b)));const ed=S.pmEditing;const can=!!S.me.id;
+  const form=ed?'<div class="panel" style="margin-bottom:16px"><div class="panel-h"><h3>'+(ed==="new"?"Add a preventive task":"Edit task")+'</h3></div><form id="pmForm" style="padding:14px" class="form"><div class="fgrid">'+(()=>{const p=ed==="new"?{}:S.pm.find(x=>x.id===ed)||{};return '<div class="f full"><label for="pTitle">Task</label><input id="pTitle" required maxlength="120" value="'+esc(p.title||"")+'"></div><div class="f"><label for="pLoc">Location / equipment</label><input id="pLoc" maxlength="80" value="'+esc(p.location||"")+'"></div><div class="f"><label for="pCat">Category</label><select id="pCat">'+CATEGORIES.map(c=>'<option'+(c===p.category?" selected":"")+'>'+esc(c)+'</option>').join("")+'</select></div><div class="f"><label for="pFreq">Every (days)</label><input id="pFreq" type="number" min="1" value="'+esc(p.frequencyDays||30)+'"><span class="hint">Daily 1 · weekly 7 · monthly 30 · quarterly 90 · annual 365</span></div><div class="f"><label for="pLast">Last done</label><input id="pLast" type="date" value="'+esc(p.lastDone||"")+'"></div><div class="f"><label for="pWho">Responsible</label><select id="pWho"><option value="">Unassigned</option>'+peopleOptions(p.assigneeId)+'</select></div><div class="f full"><label for="pNotes">Notes / vendor / checklist</label><textarea id="pNotes" maxlength="1500">'+esc(p.notes||"")+'</textarea></div>'})()+'</div><div class="btn-row"><button class="btn primary" type="submit">Save task</button><button class="btn" type="button" data-pm-cancel>Cancel</button>'+(ed!=="new"?'<span style="flex:1"></span><button class="btn danger" type="button" data-pm-del="'+esc(ed)+'">Delete</button>':"")+'</div></form></div>':"";
+  const rows=P.map(p=>{const st=pmState(p);return '<tr><td><b>'+esc(p.title)+'</b><div class="muted" style="font-size:12px">'+esc(p.location||"")+" · "+esc(p.category||"")+'</div></td><td class="mono">'+esc(p.frequencyDays)+'d</td><td>'+esc(p.lastDone?fmtDate(p.lastDone):"—")+'</td><td><span class="pill '+(st==="overdue"?"s-bad":st==="due"?"s-wip":"s-ready")+'">'+(st==="overdue"?"Overdue":st==="due"?"Due soon":"On track")+'</span> '+esc(fmtDate(pmNext(p)))+'</td><td>'+esc(p.assigneeId?nm(p.assigneeId):"—")+'</td><td style="white-space:nowrap">'+(can?'<button class="btn sm" data-pm-done="'+esc(p.id)+'">Done</button> <button class="btn sm" data-pm-wo="'+esc(p.id)+'">Work order</button> <button class="btn sm" data-pm-edit="'+esc(p.id)+'">Edit</button>':"")+'</td></tr>'}).join("");
+  $("#v-preventive").innerHTML='<div class="view-head"><div><h2>Preventive maintenance</h2><p>Recurring inspections and service. Due dates appear on the calendar. Confirm each interval against manufacturer and code requirements — the starter values are suggestions only.</p></div>'+(can?'<button class="btn primary" data-pm-new>Add task</button>':"")+'</div>'+form+
+   '<div class="panel">'+(P.length?'<div class="tbl-wrap"><table><thead><tr><th>Task</th><th>Every</th><th>Last done</th><th>Next due</th><th>Responsible</th><th></th></tr></thead><tbody style="cursor:default">'+rows+'</tbody></table></div>':'<div class="empty"><strong>No preventive schedule yet</strong>Start from common church tasks and trim what doesn\'t apply.'+(can?'<div style="margin-top:12px" class="btn-row" style="justify-content:center"><button class="btn" data-pm-starter>Add 11 common tasks</button><button class="btn primary" data-pm-new>Add a task</button></div>':"")+'</div>')+'</div>';
+  const f=$("#pmForm");if(f)f.onsubmit=savePM;
+}
+async function savePM(e){e.preventDefault();const g=id=>document.getElementById(id).value.trim();if(!g("pTitle"))return;
+  const data={title:g("pTitle"),location:g("pLoc"),category:g("pCat"),frequencyDays:Math.max(1,Number(g("pFreq"))||30),lastDone:g("pLast"),assigneeId:g("pWho")||null,notes:g("pNotes"),updatedAt:Date.now()};
+  try{if(S.pmEditing==="new"){data.createdAt=Date.now();await S.db.collection("pm").add(data)}else await S.db.doc("pm/"+S.pmEditing).update(data);S.pmEditing=null;renderPM();toast("Task saved.")}catch(err){toast("Couldn't save. You may need Contributor access.")}}
+
+/* ============ reports ============ */
+function renderReports(){
+  const R=S.requests;const now=Date.now();const d30=now-30*864e5;
+  const closed=R.filter(r=>r.status==="verified");
+  const acceptTimes=R.filter(r=>r.acceptedAt).map(r=>(r.acceptedAt-r.createdAt)/3600000);
+  const compTimes=closed.filter(r=>r.completedAt).map(r=>(r.completedAt-r.createdAt)/86400000);
+  const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):0;
+  const open=R.filter(isOpen),overdue=open.filter(isOverdue);
+  const byCat={};R.forEach(r=>{byCat[r.category]=(byCat[r.category]||0)+1});
+  const roomFails={};R.forEach(r=>{if(r.roomId&&(r.type==="reset"||r.status==="blocked"))roomFails[r.roomId]=(roomFails[r.roomId]||0)+1});
+  const incompleteResets=R.filter(r=>r.type==="reset"&&isOpen(r)).length;
+  const pmDone=S.pm.filter(p=>p.lastDone).length;
+  const spend=closed.filter(r=>r.verifiedAt>d30).reduce((a,r)=>a+(Number(r.actualCost)||0),0);
+  const sundays=S.inspections.filter(i=>i.template==="sunday");
+  const load={};open.forEach(r=>{const k=r.assigneeId||"_";load[k]=(load[k]||0)+1});
+  const metric=(l,v)=>'<div class="tile" style="cursor:default"><span class="n" style="font-size:24px">'+esc(v)+'</span><span class="t">'+esc(l)+'</span></div>';
+  $("#v-reports").innerHTML='<div class="view-head"><div><h2>Reports & accountability</h2><p>Trends for weekly and monthly facilities and finance reviews. Export any table as CSV.</p></div><div class="btn-row"><button class="btn" data-export="requests">Export work orders</button><button class="btn" data-export="rooms">Export rooms</button></div></div>'+
+   '<div class="tiles" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px">'+metric("Submitted (all time)",R.length)+metric("Verified / closed",closed.length)+metric("Open now",open.length)+metric("Overdue",overdue.length)+metric("Avg time to accept",avg(acceptTimes).toFixed(1)+" h")+metric("Avg time to close",avg(compTimes).toFixed(1)+" d")+metric("Incomplete resets",incompleteResets)+metric("Spend (30d actual)","$"+spend)+'</div>'+
+   '<div class="grid2"><div class="stack"><div class="panel"><div class="panel-h"><h3>Requests by category</h3></div><div class="panel-b">'+(Object.keys(byCat).length?Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([c,n])=>'<div class="row" style="cursor:default"><span class="dot" style="--dot:var(--accent)"></span><span>'+esc(c)+'</span><span class="mono">'+n+'</span></div>').join(""):'<div class="empty">No data.</div>')+'</div></div>'+
+   '<div class="panel"><div class="panel-h"><h3>Rooms with repeated resets / blocks</h3></div><div class="panel-b">'+(Object.keys(roomFails).length?Object.entries(roomFails).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([id,n])=>'<div class="row" style="cursor:default"><span class="dot" style="--dot:var(--c-reset)"></span><span>'+esc(roomName(id)||"Unknown")+'</span><span class="mono">'+n+'</span></div>').join(""):'<div class="empty">No repeat issues.</div>')+'</div></div></div>'+
+   '<div class="stack"><div class="panel"><div class="panel-h"><h3>Workload by staff</h3></div><div class="panel-b">'+(Object.keys(load).length?Object.entries(load).sort((a,b)=>b[1]-a[1]).map(([id,n])=>'<div class="row" style="cursor:default"><span class="dot" style="--dot:var(--accent)"></span><span>'+esc(id==="_"?"Unassigned":nm(id))+'</span><span class="mono">'+n+'</span></div>').join(""):'<div class="empty">No open work.</div>')+'</div></div>'+
+   '<div class="panel"><div class="panel-h"><h3>Readiness & preventive</h3></div><div class="panel-b" style="padding:12px"><p style="margin:0 0 6px">Preventive tasks with a logged completion: <b>'+pmDone+' / '+S.pm.length+'</b></p><p style="margin:0 0 6px">Sunday verifications on record: <b>'+sundays.length+'</b></p><p class="muted" style="margin:0;font-size:12px">A searchable history by room, request and event is kept in each work order\'s timeline.</p></div></div></div></div>';
+}
+function toCsv(rows){return rows.map(r=>r.map(c=>{const s=String(c==null?"":c);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}).join(",")).join("\n")}
+async function doExport(what){
+  let rows;
+  if(what==="requests")rows=[["Number","Type","Title","Room","Status","Priority","Deadline","Assigned","Requested by","Est cost","Actual cost","Created","Verified"],...S.requests.map(r=>[r.number,TYPES[r.type]?TYPES[r.type].label:r.type,r.title,roomName(r.roomId)||r.location,STATUS[r.status]||r.status,r.priority,deadlineOf(r),nm(r.assigneeId),r.contactName||nm(r.requesterId),r.estCost,r.actualCost,new Date(r.createdAt).toISOString(),r.verifiedAt?new Date(r.verifiedAt).toISOString():""])];
+  else rows=[["Room","Building","Ministry","Capacity","Owner","Sunday required","Last verified","Readiness"],...S.rooms.map(r=>[r.name,r.building,r.ministry,r.capacity,nm(r.ownerId),r.sundayRequired?"yes":"no",r.lastReadyAt?new Date(r.lastReadyAt).toISOString():"",roomReadiness(r).state])];
+  const csv=toCsv(rows);const fn="tsc-"+what+"-"+todayYmd()+".csv";
+  if(S.downloads){try{await S.downloads.save({filename:fn,data:csv});toast("Saved "+fn);return}catch(e){}}
+  showModal('<div class="d-head"><h2>Export</h2><button class="btn sm" data-close>Close</button></div><p class="muted">Downloads aren\'t available in this view. Copy the CSV below.</p><textarea style="width:100%;min-height:300px;font-family:var(--f-mono);font-size:12px" readonly>'+esc(csv)+'</textarea>');
+}
+/* ============ routing / setup ============ */
+const pickerState={};
+function pickVal(key){if(key in pickerState)return pickerState[key];const c=cfg();if(key.startsWith("cat:"))return (c.categoryAssignees||{})[key.slice(4)]||null;if(key.startsWith("svc:"))return (c.serviceOwners||{})[key.slice(4)]||null;return c[key]||null}
+function renderRouting(){
+  const c=cfg();const can=S.canEdit;
+  const pick=(key,label,hint)=>'<div class="f"><label>'+label+'</label>'+(can?'<div class="picker"><input data-picker="'+key+'" placeholder="Search people…" autocomplete="off"><div class="res" hidden></div></div>':"")+'<div class="picked">'+(pickVal(key)?'<b>'+esc(nm(pickVal(key)))+'</b>'+(can?' <button class="btn sm" type="button" data-unpick="'+key+'">Remove</button>':""):'<span class="muted">Not set</span>')+'</div>'+(hint?'<span class="hint">'+hint+'</span>':"")+'</div>';
+  const team=pickerState.team!==undefined?pickerState.team:(c.team||[]);
+  $("#v-routing").innerHTML='<div class="view-head"><div><h2>Setup — routing & rules</h2><p>Decide who accepts, approves, completes and verifies each kind of request. Each step notifies the next person.</p></div></div>'+
+   (!can?'<div class="banner">Only the hub owner and editors can change this. Here\'s how requests route today.</div>':"")+
+   '<form id="routingForm" class="form" style="max-width:920px">'+
+   '<div class="panel" style="padding:14px"><ol style="margin:0;padding-left:20px;color:var(--ink-2);display:grid;gap:4px"><li><b>Submitted</b> → category owner (or director).</li><li><b>Assigned</b> → owner assigns & schedules; repairs at/over the limit and event setups go to an approver.</li><li><b>Done</b> → the assignee marks work complete with notes/photos.</li><li><b>Verified</b> → a verifier confirms the room is actually ready, then it closes. Event setups that change a room auto-create a post-event reset.</li></ol></div>'+
+   '<fieldset><legend>People</legend><div class="fgrid">'+pick("directorId","Facilities director","Sees everything; fallback for every step.")+pick("eventCoordinatorId","Event setup coordinator","Accepts event & room-setup requests.")+pick("eventApproverId","Event approver","Approves event setups.")+pick("maintenanceApproverId","Maintenance approver","Approves repairs at/over the cost limit.")+pick("resetOwnerId","Default reset owner","Takes resets when the room has no owner.")+'</div></fieldset>'+
+   '<fieldset><legend>Rules</legend><div class="fgrid"><div class="f"><label for="cfThr">Cost needing approval ($)</label><input id="cfThr" type="number" min="1" value="'+esc(c.costThreshold||500)+'"'+(can?"":" disabled")+'></div><div class="f"><label for="cfThu">Thursday checkpoint time</label><input id="cfThu" value="'+esc(c.thursdayTime||"2:00 PM")+'"'+(can?"":" disabled")+'></div></div><div style="display:grid;gap:8px;margin-top:10px"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="cfCc"'+(c.ccDirector!==false?" checked":"")+(can?"":" disabled")+'> Copy the director on new, approved and completed requests</label><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="cfVer"'+(c.verifyAll!==false?" checked":"")+(can?"":" disabled")+'> Require verification on repairs too (always required for setups & resets)</label><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="cfEvAp"'+(c.eventsNeedApproval!==false?" checked":"")+(can?"":" disabled")+'> Event setups need approval before scheduling</label></div></fieldset>'+
+   '<fieldset><legend>Maintenance category owners</legend><p class="muted" style="margin:0 0 10px">Requests in each category go to this person. Blank = director.</p><div class="fgrid">'+CATEGORIES.map(cat=>pick("cat:"+cat,cat)).join("")+'</div></fieldset>'+
+   '<fieldset><legend>Support request owners</legend><p class="muted" style="margin:0 0 10px">Who receives IT, security, communications and other support requests. Blank = director.</p><div class="fgrid">'+SERVICE_TYPES.map(sv=>pick("svc:"+sv,sv)).join("")+'</div></fieldset>'+
+   '<fieldset><legend>Facilities team</legend><p class="muted" style="margin:0 0 10px">Extra people who can be assigned work (custodians, contractors, volunteers).</p>'+(can?'<div class="picker f"><input data-picker="team" placeholder="Add a person…" autocomplete="off"><div class="res" hidden></div></div>':"")+'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+(team.length?team.map(id=>'<span class="chip" style="cursor:default">'+esc(nm(id))+(can?' <button type="button" class="btn sm" style="padding:0 6px" data-unteam="'+esc(id)+'" aria-label="Remove">×</button>':"")+'</span>').join(""):'<span class="muted">No extra team members.</span>')+'</div></fieldset>'+
+   (can?'<div style="display:flex;gap:10px;align-items:center"><button class="btn primary" type="submit">Save routing</button><span class="muted" id="cfMsg"></span></div>':"")+
+   '<div class="banner" style="margin-top:4px"><b>Permissions note:</b> this hub stores data in the artifact database, which enforces access <b>by share level</b> — room standards and this Setup page are locked to editors (real enforcement). It cannot enforce per-request rules (e.g. "only this verifier may verify #123"); those are guided in the interface only. For audited, per-record permissions in production, move the data to a backend with row-level security (see launch notes).</div></form>';
+  const f=$("#routingForm");if(f)f.onsubmit=saveRouting;
+}
+async function saveRouting(e){e.preventDefault();const c=Object.assign({},cfg());
+  ["directorId","eventCoordinatorId","eventApproverId","maintenanceApproverId","resetOwnerId"].forEach(k=>{c[k]=pickVal(k)||null});
+  c.categoryAssignees={};CATEGORIES.forEach(cat=>{const v=pickVal("cat:"+cat);if(v)c.categoryAssignees[cat]=v});
+  c.serviceOwners={};SERVICE_TYPES.forEach(sv=>{const v=pickVal("svc:"+sv);if(v)c.serviceOwners[sv]=v});
+  c.team=pickerState.team!==undefined?pickerState.team:(c.team||[]);c.costThreshold=Number($("#cfThr").value)||500;c.thursdayTime=$("#cfThu").value||"2:00 PM";c.ccDirector=$("#cfCc").checked;c.verifyAll=$("#cfVer").checked;c.eventsNeedApproval=$("#cfEvAp").checked;c.updatedAt=Date.now();
+  try{await S.db.doc("config/routing").set(c);Object.keys(pickerState).forEach(k=>delete pickerState[k]);toast("Routing saved.")}catch(err){$("#cfMsg").textContent="Couldn't save. Only the hub owner and editors can change routing."}}
+let searchT=null;
+document.addEventListener("input",e=>{const inp=e.target.closest("[data-picker]");if(!inp||!S.user)return;const box=inp.parentElement.querySelector(".res");clearTimeout(searchT);
+  searchT=setTimeout(async()=>{let res=[];try{res=await S.user.search(inp.value)}catch(err){}res.forEach(p=>S.profiles[p.id]=p);
+    box.innerHTML=res.length?res.slice(0,8).map(p=>'<button type="button" data-pickid="'+esc(p.id)+'">'+esc(p.name||"Someone")+(p.email?' <span class="muted">'+esc(p.email)+'</span>':"")+'</button>').join(""):'<div class="muted" style="padding:8px 10px">No one found. People must have access to this hub.</div>';box.hidden=false},200)});
+document.addEventListener("focusin",e=>{const inp=e.target.closest&&e.target.closest("[data-picker]");if(inp&&!inp.value)inp.dispatchEvent(new Event("input",{bubbles:true}))});
+
+/* ============ global clicks ============ */
+document.addEventListener("click",async e=>{
+  const t=e.target.closest("button,a,[data-scrim]");if(!t)return;const d=t.dataset;
+  if(t.hasAttribute("data-scrim")){if(e.target===t)closeModal();return}
+  if(d.pickid){const inp=t.closest(".picker").querySelector("input");const key=inp.dataset.picker;if(key==="team"){const cur=pickerState.team!==undefined?pickerState.team:(cfg().team||[]).slice();if(!cur.includes(d.pickid))cur.push(d.pickid);pickerState.team=cur}else pickerState[key]=d.pickid;S.view==="rooms"?renderRooms():renderRouting();return}
+  if(d.unpick){pickerState[d.unpick]=null;S.view==="rooms"?renderRooms():renderRouting();return}
+  if(d.unteam){pickerState.team=(pickerState.team!==undefined?pickerState.team:(cfg().team||[])).filter(x=>x!==d.unteam);renderRouting();return}
+  if(d.open){openDetail(d.open);return}
+  if(d.openRoom){openRoomDetail(d.openRoom);return}
+  if(d.openCal){openCalKey(d.openCal);return}
+  if(d.openN){const n=S.notifs.find(x=>x.id===d.openN);if(n){if(!n.read)S.db.doc("notifications/"+n.id).update({read:true}).catch(()=>{});openDetail(n.requestId)}return}
+  if(d.go){const[v,st]=d.go.split(":");if(v==="sunday"||v==="preventive"){location.hash="#"+v;return}S.woFilter=Object.assign(S.woFilter,{status:st||"open",q:"",type:"all",room:"all",mine:false});location.hash="#"+v;return}
+  if(d.makeReset){const rm=room(d.makeReset);const fake={type:"reset",roomId:d.makeReset,eventDate:todayYmd(),title:rm?rm.name:"",changesConfig:true,number:"(manual)",id:"manual"};await createReset(fake);return}
+  if(t.hasAttribute("data-close")){if(d.prefillDate)prefill={type:"event_setup",eventDate:d.prefillDate};if(d.prefillRoom)prefill={type:d.prefillType||"reset",roomId:d.prefillRoom};if(d.roomEdit){S.roomEditing=d.roomEdit}closeModal();if((d.prefillDate||d.prefillRoom)&&S.view==="request")renderRequestForm();if(d.roomEdit&&S.view==="rooms")renderRooms();return}
+  if(d.linkPco){const e2=allPcoEvents().find(x=>x.id===d.linkPco);if(e2){const rm=S.rooms.find(r=>(e2.l||"").toLowerCase().includes((r.name||"").toLowerCase()));prefill={type:"event_setup",title:"Setup: "+e2.n,eventDate:ymd(new Date(e2.s)),pcoEventId:e2.id,roomId:rm?rm.id:""}}closeModal();if(S.view==="request")renderRequestForm();else location.hash="#request";return}
+  if(t.hasAttribute("data-rerender")){renderDetail();return}
+  if(d.do){t.disabled=true;try{await doAction(d.do)}catch(err){toast(err&&err.code==="invalid_argument"?"You don't have permission to change this.":"That didn't save. Try again.")}finally{t.disabled=false}return}
+  if(d.check!==undefined){toggleCheck(Number(d.check));return}
+  if(d.copy){try{await navigator.clipboard.writeText(d.copy);toast("Copied "+d.copy)}catch(err){toast(d.copy)}return}
+  if(d.rmphoto!==undefined){S.draftPhotos.splice(Number(d.rmphoto),1);drawThumbs();return}
+  if(d.toggle){S.calShow[d.toggle]=!S.calShow[d.toggle];savePrefs();renderCalendar();return}
+  if(d.cal!==undefined){const n=Number(d.cal);if(n===0)S.calMonth=monthKey(new Date());else{const[y,m]=S.calMonth.split("-").map(Number);S.calMonth=monthKey(new Date(y,m-1+n,1))}renderCalendar();ensureMonth(S.calMonth);return}
+  if(d.calmode){S.calMode=d.calmode;savePrefs();renderCalendar();return}
+  if(d.day){openDay(d.day);return}
+  if(d.act==="pco-load"){S.pcoState._needsClick=false;const mk=S.view==="calendar"?S.calMonth:monthKey(new Date());delete S.pcoState[mk];ensureMonth(mk,true);return}
+  if(d.act==="read-all"){for(const n of S.notifs.filter(n=>!n.read))await S.db.doc("notifications/"+n.id).update({read:true}).catch(()=>{});return}
+  if(d.act==="clear-read"){for(const n of S.notifs.filter(n=>n.read))await S.db.doc("notifications/"+n.id).delete().catch(()=>{});toast("Cleared.");return}
+  // rooms
+  if(t.hasAttribute("data-room-new")){S.roomEditing="new";renderRooms();const el=$("#rmName");el&&el.focus();return}
+  if(d.roomEdit){S.roomEditing=d.roomEdit;renderRooms();window.scrollTo(0,0);return}
+  if(t.hasAttribute("data-room-cancel")){S.roomEditing=null;delete pickerState.room;renderRooms();return}
+  if(d.roomDel){if(t.dataset.armed){await S.db.doc("rooms/"+d.roomDel).delete().catch(()=>toast("Couldn't delete."));S.roomEditing=null;renderRooms()}else{t.dataset.armed="1";t.textContent="Click again to delete"}return}
+  if(t.hasAttribute("data-rooms-starter")){t.disabled=true;for(const[name,building,capacity,standardConfig,ministry,sundayRequired] of STARTER_ROOMS)await S.db.collection("rooms").add({name,building,capacity,standardConfig,ministry,sundayRequired,tables:"",chairs:"",instructions:"",createdAt:Date.now(),updatedAt:Date.now()}).catch(()=>{});toast("Starter rooms added. Edit each to add photos, owners and inventory.");return}
+  // inspections
+  if(d.inspStart){inspRun={template:d.inspStart,items:INSPECTION_TEMPLATES[d.inspStart].items.map(t=>({t,done:false})),area:"",notes:""};renderInspections();return}
+  if(d.inspCheck!==undefined){const i=Number(d.inspCheck);if(inspRun){inspRun.area=($("#iArea")||{}).value||"";inspRun.notes=($("#iNotes")||{}).value||"";inspRun.items[i].done=!inspRun.items[i].done;renderInspections()}return}
+  if(d.inspFix!==undefined){await inspFix(Number(d.inspFix));return}
+  if(t.hasAttribute("data-insp-save")){await saveInspection();return}
+  if(t.hasAttribute("data-insp-cancel")){inspRun=null;renderInspections();return}
+  // pm
+  if(t.hasAttribute("data-pm-new")){S.pmEditing="new";renderPM();const el=$("#pTitle");el&&el.focus();return}
+  if(d.pmEdit){S.pmEditing=d.pmEdit;renderPM();return}
+  if(t.hasAttribute("data-pm-cancel")){S.pmEditing=null;renderPM();return}
+  if(d.pmDel){if(t.dataset.armed){await S.db.doc("pm/"+d.pmDel).delete().catch(()=>toast("Couldn't delete."));S.pmEditing=null;renderPM()}else{t.dataset.armed="1";t.textContent="Click again to delete"}return}
+  if(d.pmDone){const p=S.pm.find(x=>x.id===d.pmDone);await S.db.doc("pm/"+p.id).update({lastDone:todayYmd(),lastDoneBy:S.me.id,updatedAt:Date.now()}).catch(()=>toast("Couldn't save."));toast("Logged. Next due "+fmtDate(ymd(addDays(new Date(),Number(p.frequencyDays)||30))));return}
+  if(d.pmWo){const p=S.pm.find(x=>x.id===d.pmWo);const now=Date.now();const r={number:woNum("WO"),type:"problem",title:p.title,description:(p.notes||"")+"\n\nFrom the preventive schedule.",roomId:"",location:p.location||"",category:p.category||"General Repair",priority:pmState(p)==="overdue"?"high":"normal",deadline:pmNext(p),photos:[],checklist:[],status:"new",requesterId:S.me.id,contactName:S.me.name||"",ministry:"Facilities",createdAt:now,updatedAt:now,source:"pm",pmId:p.id,history:[{at:now,by:S.me.id,action:"Created from preventive schedule"}]};r.assigneeId=p.assigneeId||acceptorFor(r);r.verifierId=verifierFor(r);try{const ref=await S.db.collection("requests").add(r);await notify([r.assigneeId],Object.assign({id:ref.id},r),"Preventive work order assigned");toast("Work order "+r.number+" created.")}catch(err){toast("Couldn't create.")}return}
+  if(t.hasAttribute("data-pm-starter")){t.disabled=true;for(const[title,location,category,freq] of STARTER_PM)await S.db.collection("pm").add({title,location,category,frequencyDays:freq,lastDone:"",assigneeId:null,notes:"",createdAt:Date.now(),updatedAt:Date.now()}).catch(()=>{});toast("Added. Set each last-done date; trim what doesn't apply.");return}
+  // reports
+  if(d.export){await doExport(d.export);return}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#modalRoot").innerHTML)closeModal()});
+document.addEventListener("click",e=>{if(!e.target.closest(".picker"))document.querySelectorAll(".picker .res").forEach(b=>b.hidden=true)},true);
+// room form submit (delegated since form is re-rendered)
+document.addEventListener("submit",e=>{if(e.target.id==="roomForm")saveRoom(e)});
+boot();
+</script>
