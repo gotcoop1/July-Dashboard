@@ -18,7 +18,7 @@ Read these two files at the start of every session, before anything else:
 | Lessons learned, mistakes to avoid | `lessons.md` | n/a |
 | Ideas, reference material, research, meeting notes | `notes/` | `notes/volunteer-onboarding-ideas.md` |
 | One person: role, contact context, history | `people/` | `people/jane-smith.md` |
-| One project: goal, status, owners, next steps | `projects/` | `projects/july-dashboard.md` |
+| One project: goal, status, owners, next steps | `projects/` | `projects/july-cfo-dashboard.md` |
 | The July CFO dashboard (web page) | `index.html` | n/a |
 
 ## Rules
@@ -33,4 +33,20 @@ Read these two files at the start of every session, before anything else:
 
 List new files here as they're added, one line each.
 
-- _(empty)_
+**Root**
+- `memory.md`: current context, active projects, open items, preferences
+- `decision-log.md`: second brain setup, authoritative budget tab, Staff Support mapping, variance thresholds
+- `lessons.md`: budget file pitfalls, label mismatches, "Data Required" practice
+
+**projects/**
+- `projects/july-cfo-dashboard.md`: Jan–Jul 2026 budget vs. actual dashboard (`index.html`)
+- `projects/campus-readiness-hub.md`: facilities management app (separate branch)
+- `projects/project-template.md`: blank template
+
+**people/**
+- `people/adam.md`: finance contact for confirming budget mappings (with Novum)
+- `people/person-template.md`: blank template
+
+**notes/**
+- `notes/2026-budget-source-files.md`: which finance workbooks and tabs feed the dashboard
+- `notes/note-template.md`: blank template
